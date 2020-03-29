@@ -1,13 +1,18 @@
 import pybullet
 import numpy
+from enum import Enum
+
 from matplotlib import pyplot as plt
 
 
 import libs.pybullet_client
 import libs.track_generator
 import libs.line_follower
+import libs.observation
 
-
+class ObservationType(Enum):
+    FrontView96x96 = 0
+    TopView96x96   = 1
 
 class LineFollower:
 
@@ -44,6 +49,8 @@ class LineFollower:
         self.actions.append([0.4, 0.5])
         self.actions.append([0.1, 0.3])
 
+        self.obs = libs.observation.Observation(96, 96, 4)
+
 
     def reset(self):
 
@@ -65,6 +72,7 @@ class LineFollower:
 
         self.visited_points = numpy.zeros(self.line.get_length(), dtype=bool)
 
+
     def step(self, action):
 
         robot_x, robot_y, robot_z, pitch, roll, yaw = self.bot.get_position()
@@ -75,7 +83,7 @@ class LineFollower:
 
 
         left_power_target, right_power_target = self.actions[action]
-        left_power_target, right_power_target = 0.0, 0.0
+        #left_power_target, right_power_target = 0.0, 0.0
 
         k = 0.05
 
@@ -101,6 +109,11 @@ class LineFollower:
             self.reward+= 1.0 
             self.visited_points[closest_idx] = True
 
+        visited_count = numpy.sum(self.visited_points)
+
+        if visited_count >= 0.9*self.line.get_length():
+            self.done   = True
+            self.reward = 1.0
 
         if closest_distance > 0.15:
             self.done   = True
@@ -120,13 +133,13 @@ class LineFollower:
             #image = bot.get_image(robot_x, robot_y, 0.2 + 2, robot_x, robot_y, 0)
             
             #top view
-            top_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 1.3, robot_x, robot_y, robot_z, width = width, height = height)
+            top_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 2.3, robot_x, robot_y, robot_z, width = width, height = height)
 
             #third person view
             tp_view = self.bot.get_image(yaw*180.0/self.pi - 90, -40.0, 0.0, 0.1, robot_x + 0.02, robot_y, robot_z, width = width, height = height, fov=100)
 
             #camera view
-            cam_view = self.bot.get_image(yaw*180.0/self.pi - 90, -15.0, 0.0, 0.015, robot_x, robot_y, robot_z + 0.1, width = width, height = height, fov=60)
+            cam_view = self.get_camera_view()
 
             #sensor view
             dist = 0.05
@@ -153,7 +166,17 @@ class LineFollower:
         ax.imshow(rgb_data, aspect='equal')
         plt.pause(0.01)
         plt.close()
-       
+
+    def _get_camera_view(self, width = 256, height = 256):
+        robot_x, robot_y, robot_z, pitch, roll, yaw = self.bot.get_position()
+        return self.bot.get_image(yaw*180.0/self.pi - 90, -15.0, 0.0, 0.015, robot_x, robot_y, robot_z + 0.1, width = width, height = height, fov=60)
+
+    def _update_observation(self):
+        self.observartion = obs.process(self._get_camera_view())
+    
+
+
+score = 0.0
 
 if __name__ == "__main__":
     env = LineFollower()
@@ -163,7 +186,9 @@ if __name__ == "__main__":
         observation, reward, done, _ = env.step(action)
         env.render()
 
-        #print(reward)
+        score+= reward
+
+        print(score)
 
         if done:
             env.reset()

@@ -24,7 +24,7 @@ class TrackGenerator:
  
         line_curve_mode = "right"
 
-        r_max       = 4.0
+        r_max       = 2.0
         r_initial   = r_max/2
         r           = r_initial
         dr          = 0.0
