@@ -1,11 +1,12 @@
 import numpy
 import matplotlib.pyplot as plt
-
+import os
 
 class TrackGenerator:
 
 
     def __init__(self, base_points_count = 1024, width = 15.0):
+
         self.base_points_count = base_points_count
         self.width = width
 
@@ -14,7 +15,7 @@ class TrackGenerator:
         self.pi = 3.141591654
 
         p_curve_change = 0.2 #0.01 .. 0.2
-        dr_max         = 0.05
+        dr_max         = 0.02
 
 
         dphi         = 2.0*self.pi/self.base_points_count
@@ -65,8 +66,22 @@ class TrackGenerator:
 
         self.points = numpy.asarray(points)
 
-    def get_start(self):
-        return self.points[4]
+    def get_length(self):
+        return len(self.points)
+
+    def get_start(self, idx = 4):
+        dx = self.points[idx][0] - self.points[idx-1][0]
+        dy = self.points[idx][1] - self.points[idx-1][1]
+
+        yaw = numpy.arctan2(dy, dx)
+
+        point       = [self.points[idx][0], self.points[idx][1], 0.05]
+        orientation = [yaw + self.pi, 0.0, 0.0]
+        return [point, orientation]
+
+    def get_start_random(self):
+        idx = numpy.random.randint(self.get_length()//2) + 4
+        return self.get_start(idx)
 
     def get_closest(self, x, y):
         position = [x, y]
@@ -99,7 +114,9 @@ class TrackGenerator:
             points_str, idx_current = self._get_obj(points, idx_current)
 
             f.write(points_str)
-
+        
+        f.flush()
+        os.fsync(f)
         f.close()
 
     def _get_points(self, width, start_point, end_point):

@@ -16,6 +16,12 @@ class LineFollower:
         self.dt = 1.0/200.0
         self.pi = 3.141592654
 
+
+        self.pb_client = libs.pybullet_client.Client(pybullet.DIRECT)
+      
+        self.line = libs.track_generator.TrackGenerator(2048, 0.015)
+        self.line.save("./model/line.obj")
+
         self.reset()
 
         self.actions = []
@@ -41,16 +47,11 @@ class LineFollower:
 
     def reset(self):
 
-        self.pb_client = libs.pybullet_client.Client(pybullet.DIRECT)
         self.pb_client.resetSimulation()
-
         self.pb_client.setGravity(0, 0, -9.81)
         self.pb_client.setTimeStep(self.dt)
 
-
-        self.line = libs.track_generator.TrackGenerator(2048, 0.015)
-        self.line.save("./model/line.obj")
-        self.bot = libs.line_follower.LineFollower(self.pb_client, "./model/motoko_uprising.urdf", starting_point = self.line.get_start())
+        self.bot = libs.line_follower.LineFollower(self.pb_client, "./model/motoko_uprising.urdf", "./model/track_plane.urdf", starting_point = self.line.get_start_random())
 
         self.left_power  = 0.0
         self.right_power = 0.0
@@ -62,6 +63,8 @@ class LineFollower:
         self.done        = False
         self.info        = None
 
+        self.visited_points = numpy.zeros(self.line.get_length(), dtype=bool)
+
     def step(self, action):
 
         robot_x, robot_y, robot_z, pitch, roll, yaw = self.bot.get_position()
@@ -72,6 +75,7 @@ class LineFollower:
 
 
         left_power_target, right_power_target = self.actions[action]
+        left_power_target, right_power_target = 0.0, 0.0
 
         k = 0.05
 
@@ -88,12 +92,17 @@ class LineFollower:
         self.done   = False
         self.reward = 0.0
 
-        reward_distance = -numpy.clip(closest_distance*10.0, 0.0, 1.0)
+
+        #negative reward for not line following
+        self.reward+= -1.0*numpy.clip(closest_distance*10.0, 0.0, 1.0)
+
+        #positive reward for moving to next field
+        if self.visited_points[closest_idx] == False:
+            self.reward+= 1.0 
+            self.visited_points[closest_idx] = True
 
 
-        self.reward = reward_distance
-
-        if closest_distance > 0.2:
+        if closest_distance > 0.15:
             self.done   = True
             self.reward = -1.0
 
@@ -111,15 +120,21 @@ class LineFollower:
             #image = bot.get_image(robot_x, robot_y, 0.2 + 2, robot_x, robot_y, 0)
             
             #top view
-            top_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 0.25, robot_x, robot_y, robot_z, width = width, height = height)
+            top_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 1.3, robot_x, robot_y, robot_z, width = width, height = height)
 
             #third person view
             tp_view = self.bot.get_image(yaw*180.0/self.pi - 90, -40.0, 0.0, 0.1, robot_x + 0.02, robot_y, robot_z, width = width, height = height, fov=100)
 
             #camera view
-            cam_view = self.bot.get_image(yaw*180.0/self.pi - 90, -15.0, 0.0, 0.02, robot_x, robot_y, robot_z + 0.1, width = width, height = height, fov=60)
+            cam_view = self.bot.get_image(yaw*180.0/self.pi - 90, -15.0, 0.0, 0.015, robot_x, robot_y, robot_z + 0.1, width = width, height = height, fov=60)
 
-            image = numpy.vstack([numpy.hstack([top_view, tp_view]), numpy.hstack([cam_view, cam_view])])
+            #sensor view
+            dist = 0.05
+            sensor_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 0.02, robot_x+dist*numpy.cos(yaw), robot_y+dist*numpy.sin(yaw), robot_z + 0.02, width = width, height = height, fov=100)
+
+            image = numpy.vstack([numpy.hstack([top_view, tp_view]), numpy.hstack([cam_view, sensor_view])])
+
+            image = numpy.clip(image, 0.0, 1.0)
         
             self._draw_fig(image)
         
@@ -148,7 +163,7 @@ if __name__ == "__main__":
         observation, reward, done, _ = env.step(action)
         env.render()
 
-        print(reward)
+        #print(reward)
 
         if done:
             env.reset()

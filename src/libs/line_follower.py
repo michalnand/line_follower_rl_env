@@ -5,11 +5,11 @@ import numpy
 
 
 class LineFollower:
-    def __init__(self, pb_client, model_file_name = "./model/motoko_uprising.urdf", plane_file_name = "./model/track_plane.urdf", starting_point = [0, 0], base_height = 0.05):
+    def __init__(self, pb_client, model_file_name, plane_file_name, starting_point):
         self.pb_client = pb_client
 
-      
-        self.bot_model = self.pb_client.loadURDF(model_file_name, basePosition = [starting_point[0], starting_point[1], base_height])
+        orientation = self._to_quaternion(starting_point[1][0], 0.0, 0.0)
+        self.bot_model = self.pb_client.loadURDF(model_file_name, basePosition = starting_point[0], baseOrientation = orientation)
         self.track_plane_model = self.pb_client.loadURDF(plane_file_name)
 
 
@@ -75,30 +75,21 @@ class LineFollower:
                                              controlMode=   self.pb_client.VELOCITY_CONTROL,
                                              targetVelocity      =   right_velocity)
     
-    '''
-    def get_image(self, cam_x, cam_y, cam_z, target_x, target_y, target_z, width = 512, height = 512):
+    def _to_quaternion(self, yaw, pitch, roll):
+        cy = numpy.cos(yaw * 0.5)
+        sy = numpy.sin(yaw * 0.5)
+        cp = numpy.cos(pitch * 0.5)
+        sp = numpy.sin(pitch * 0.5)
+        cr = numpy.cos(roll * 0.5)
+        sr = numpy.sin(roll * 0.5)
 
-        
-        vm = self.pb_client.computeViewMatrix([cam_x, cam_y, cam_z], [target_x, target_y, target_z], [1, 0, 0])
+        x = cy * cp * sr - sy * sp * cr
+        y = sy * cp * sr + cy * sp * cr
+        z = sy * cp * cr - cy * sp * sr
+        w = cy * cp * cr + sy * sp * sr
 
+        return x, y, z, w
 
-        pm = self.pb_client.computeProjectionMatrixFOV(fov=120,
-                                                       aspect=width / height,
-                                                       nearVal=0.0001,
-                                                       farVal=100.1) 
-
-        w, h, rgb, deth, seg = self.pb_client.getCameraImage(width=width,
-                                                             height=height,
-                                                             viewMatrix=vm,
-                                                             projectionMatrix=pm,
-                                                             renderer=self.pb_client.ER_BULLET_HARDWARE_OPENGL)
-
-        rgb = numpy.array(rgb)
-        rgb = rgb[:, :, :3]
-
-
-        return rgb
-    '''
 
 
     def get_image(self, yaw, pitch, roll, distance, target_x, target_y, target_z, width = 512, height = 512, fov = 120):
