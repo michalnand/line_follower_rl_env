@@ -19,7 +19,7 @@ class Observation:
         for i in reversed(range(self.frame_stacking-1)):
             self.observation[i+1] = self.observation[i].copy()
         
-        self.observation[0] = np.array(resized).copy()
+        self.observation[0] = numpy.array(resized).copy()
 
         return self.observation
 

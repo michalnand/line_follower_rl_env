@@ -101,7 +101,7 @@ class LineFollower:
         pm = self.pb_client.computeProjectionMatrixFOV(fov=fov,
                                                        aspect=width / height,
                                                        nearVal=0.0001,
-                                                       farVal=100.1) 
+                                                       farVal=10.1) 
 
         w, h, rgb, deth, seg = self.pb_client.getCameraImage(width=width,
                                                              height=height,
@@ -111,6 +111,5 @@ class LineFollower:
 
         rgb = numpy.array(rgb)
         rgb = rgb[:, :, :3]
-
 
         return rgb

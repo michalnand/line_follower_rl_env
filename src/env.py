@@ -1,5 +1,6 @@
 import pybullet
 import numpy
+import time
 from enum import Enum
 
 from matplotlib import pyplot as plt
@@ -27,6 +28,8 @@ class LineFollower:
         self.line = libs.track_generator.TrackGenerator(2048, 0.015)
         self.line.save("./model/line.obj")
 
+        self.obs = libs.observation.Observation(96, 96, 4)
+
         self.reset()
 
         self.actions = []
@@ -49,7 +52,6 @@ class LineFollower:
         self.actions.append([0.4, 0.5])
         self.actions.append([0.1, 0.3])
 
-        self.obs = libs.observation.Observation(96, 96, 4)
 
 
     def reset(self):
@@ -71,6 +73,10 @@ class LineFollower:
         self.info        = None
 
         self.visited_points = numpy.zeros(self.line.get_length(), dtype=bool)
+
+        self.observation = self._update_observation()
+
+        return self.observation
 
 
     def step(self, action):
@@ -119,6 +125,8 @@ class LineFollower:
             self.done   = True
             self.reward = -1.0
 
+        self.observation = self._update_observation()
+        
         return self.observation, self.reward, self.done, self.info
         
 
@@ -139,7 +147,7 @@ class LineFollower:
             tp_view = self.bot.get_image(yaw*180.0/self.pi - 90, -40.0, 0.0, 0.1, robot_x + 0.02, robot_y, robot_z, width = width, height = height, fov=100)
 
             #camera view
-            cam_view = self.get_camera_view()
+            cam_view = self._get_camera_view()
 
             #sensor view
             dist = 0.05
@@ -172,26 +180,48 @@ class LineFollower:
         return self.bot.get_image(yaw*180.0/self.pi - 90, -15.0, 0.0, 0.015, robot_x, robot_y, robot_z + 0.1, width = width, height = height, fov=60)
 
     def _update_observation(self):
-        self.observartion = obs.process(self._get_camera_view())
+        return self.obs.process(self._get_camera_view())
     
 
 
-score = 0.0
+
+def draw_fig(rgb_data):
+    plt.imshow(rgb_data, cmap='gray', aspect='equal')
+    plt.pause(0.01)
+    plt.close()
+
+
+
 
 if __name__ == "__main__":
     env = LineFollower()
-
+    fps = 0
+    step = 0
     while True:
         action = numpy.random.randint(16)
+ 
+        time_start = time.time()
         observation, reward, done, _ = env.step(action)
         env.render()
 
-        score+= reward
-
-        print(score)
-
+        #draw_fig(observation[0])
+    
         if done:
             env.reset()
-    
+
+        '''
+        time_stop = time.time()
+
+        fps_ = 1.0/(time_stop - time_start)
+
+        k = 0.02
+        fps = (1.0 - k)*fps + k*fps_
+
+        if step%100 == 0:
+            print(fps)
+
+        step+= 1
+        '''
+
 
 
