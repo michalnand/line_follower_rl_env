@@ -13,13 +13,13 @@ class Observation:
         self._reset()
 
     
-    def process(self, rgb_frame):
-        resized = self._resize(rgb_frame)
+    def process(self, frame):
+        resized = self._resize(frame)
         
         for i in reversed(range(self.frame_stacking-1)):
             self.observation[i+1] = self.observation[i].copy()
         
-        self.observation[0] = numpy.array(resized).copy()
+        self.observation[0] = numpy.array(resized).copy()/256.0
 
         return self.observation
 

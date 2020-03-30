@@ -35,10 +35,8 @@ class LineFollowerEnv(gym.Env):
 
         self.obs = observation.Observation(width, height, frame_stacking)
         self.observation_space = spaces.Box(low=0, high=1.0, shape=(width, height, frame_stacking), dtype=numpy.float)
-
  
-        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=numpy.float32)
-
+        self.action_space = spaces.Discrete(16)
 
         self.reset()
 
@@ -204,34 +202,15 @@ def draw_fig(rgb_data):
 
 
 if __name__ == "__main__":
-    env = LineFollowerEnv()
-    fps = 0
-    step = 0
-    while True:
-        action = numpy.random.randint(16)
- 
-        time_start = time.time()
-        observation, reward, done, _ = env.step(action)
-        env.render()
 
-        #draw_fig(observation[0])
+    env = LineFollowerEnv() #gym.make("BubbleShooter-v0")
+    env.reset()
+    env.render()
     
+    while True:
+        action = env.action_space.sample()
+        state, reward, done, _ = env.step(action)
+        env.render()
+		
         if done:
             env.reset()
-
-        '''
-        time_stop = time.time()
-
-        fps_ = 1.0/(time_stop - time_start)
-
-        k = 0.02
-        fps = (1.0 - k)*fps + k*fps_
-
-        if step%100 == 0:
-            print(fps)
-
-        step+= 1
-        '''
-
-
-

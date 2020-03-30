@@ -1,11 +1,23 @@
 # Line Follower reinforcement learning evironment
 
-TOOD more
-- observation is 96x96 camera view, 4 grayscaled frames stacked, channel first
+### Observation
+camera view from front of robot
+- state : 4stacked grayscale frames, channels first, 4x96x96
+- values float range <0.0, 1.0>
+
+
+### Actions
+discrete, 16 actions - powers to motors
+
+
+### Reward
+- +1 : for new path visited field, if more than 90% fields visited, episode done
+- -1 : if more than 150mm away from line, episode ends
+- small negative reward : for line position not in center
 
 ## Getting Started
 
-TODO example
+#### TODO example
 
 ### Prerequisites
 
@@ -13,4 +25,5 @@ numpy, gym, pybullet, cv2
 
 ### Installing
 
+#### TODO not workking yey
 pip3 install -e .

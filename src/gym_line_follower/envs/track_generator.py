@@ -7,6 +7,8 @@ class TrackGenerator:
 
     def __init__(self, base_points_count = 1024, width = 15.0):
 
+        numpy.random.seed(0)
+
         self.base_points_count = base_points_count
         self.width = width
 
@@ -80,7 +82,7 @@ class TrackGenerator:
         return [point, orientation]
 
     def get_start_random(self):
-        idx = numpy.random.randint(self.get_length()//2) + 4
+        idx = numpy.random.randint((self.get_length()*80)//100) + 4
         return self.get_start(idx)
 
     def get_closest(self, x, y):
