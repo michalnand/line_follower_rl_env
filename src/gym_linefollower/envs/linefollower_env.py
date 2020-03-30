@@ -66,7 +66,7 @@ class LineFollowerEnv(gym.Env):
         self.pb_client.setGravity(0, 0, -9.81)
         self.pb_client.setTimeStep(self.dt)
 
-        self.bot = linefollower_bot.LineFollowerBot(self.pb_client, "./motoko_uprising.urdf", "./track_plane.urdf", starting_point = self.line.get_start_random())
+        self.bot = linefollower_bot.LineFollowerBot(self.pb_client, "./motoko_uprising_simple.urdf", "./track_plane.urdf", starting_point = self.line.get_start_random())
 
         self.left_power  = 0.0
         self.right_power = 0.0
