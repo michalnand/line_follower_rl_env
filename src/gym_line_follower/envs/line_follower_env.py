@@ -1,34 +1,44 @@
+import gym
+from gym import error, spaces, utils
+from gym.utils import seeding
+
 import pybullet
 import numpy
 import time
-from enum import Enum
 
 from matplotlib import pyplot as plt
+from gym import spaces
 
 
-import libs.pybullet_client
-import libs.track_generator
-import libs.line_follower
-import libs.observation
+import pybullet_client
+import track_generator
+import line_follower_bot
+import observation
 
-class ObservationType(Enum):
-    FrontView96x96 = 0
-    TopView96x96   = 1
 
-class LineFollower:
 
-    def __init__(self):
+class LineFollowerEnv(gym.Env):
+
+    def __init__(self, frame_stacking = 4):
 
         self.dt = 1.0/200.0
         self.pi = 3.141592654
 
 
-        self.pb_client = libs.pybullet_client.Client(pybullet.DIRECT)
+        self.pb_client = pybullet_client.Client(pybullet.DIRECT)
       
-        self.line = libs.track_generator.TrackGenerator(2048, 0.015)
-        self.line.save("./model/line.obj")
+        self.line = track_generator.TrackGenerator(2048, 0.015)
+        self.line.save("./line.obj")
 
-        self.obs = libs.observation.Observation(96, 96, 4)
+        width  = 96
+        height = 96
+
+        self.obs = observation.Observation(width, height, frame_stacking)
+        self.observation_space = spaces.Box(low=0, high=1.0, shape=(width, height, frame_stacking), dtype=numpy.float)
+
+ 
+        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=numpy.float32)
+
 
         self.reset()
 
@@ -60,7 +70,7 @@ class LineFollower:
         self.pb_client.setGravity(0, 0, -9.81)
         self.pb_client.setTimeStep(self.dt)
 
-        self.bot = libs.line_follower.LineFollower(self.pb_client, "./model/motoko_uprising.urdf", "./model/track_plane.urdf", starting_point = self.line.get_start_random())
+        self.bot = line_follower_bot.LineFollowerBot(self.pb_client, "./motoko_uprising.urdf", "./track_plane.urdf", starting_point = self.line.get_start_random())
 
         self.left_power  = 0.0
         self.right_power = 0.0
@@ -194,7 +204,7 @@ def draw_fig(rgb_data):
 
 
 if __name__ == "__main__":
-    env = LineFollower()
+    env = LineFollowerEnv()
     fps = 0
     step = 0
     while True:

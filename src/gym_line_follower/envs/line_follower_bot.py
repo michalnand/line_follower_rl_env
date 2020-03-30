@@ -1,10 +1,9 @@
-import libs.motors
-import libs.dc_motor
+import motors
 import pybullet
 import numpy
 
 
-class LineFollower:
+class LineFollowerBot:
     def __init__(self, pb_client, model_file_name, plane_file_name, starting_point):
         self.pb_client = pb_client
 

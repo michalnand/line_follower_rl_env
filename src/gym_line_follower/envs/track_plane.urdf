@@ -48,7 +48,7 @@
 
     	<visual>
       		<geometry>
-				<mesh filename="./model/line.obj" scale="1 1 1"/>
+				<mesh filename="./line.obj" scale="1 1 1"/>
       		</geometry>
        		
 			<material name="black">
