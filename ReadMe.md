@@ -1,4 +1,4 @@
-# Line Follower reinforcement learning evironment
+# Line Follower reinforcement learning environment
 
 <img src="./imgs/env.png" width="300" height="256">
 <img src="./imgs/animation.gif" width="300" height="256">
