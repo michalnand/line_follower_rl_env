@@ -149,7 +149,7 @@ class LineFollowerEnv(gym.Env):
             #image = bot.get_image(robot_x, robot_y, 0.2 + 2, robot_x, robot_y, 0)
             
             #top view
-            top_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 2.3, robot_x, robot_y, robot_z, width = width, height = height)
+            top_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 0.6, robot_x, robot_y, robot_z, width = width, height = height)
 
             #third person view
             tp_view = self.bot.get_image(yaw*180.0/self.pi - 90, -40.0, 0.0, 0.1, robot_x + 0.02, robot_y, robot_z, width = width, height = height, fov=100)
