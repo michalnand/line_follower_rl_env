@@ -16,7 +16,6 @@ import linefollower_bot
 import observation
 
 
-
 class LineFollowerEnv(gym.Env):
 
     def __init__(self, frame_stacking = 4):
@@ -59,7 +58,6 @@ class LineFollowerEnv(gym.Env):
         self.actions.append([0.6, 0.8])
         self.actions.append([0.4, 0.5])
         self.actions.append([0.1, 0.3])
-
 
 
     def reset(self):
@@ -149,10 +147,11 @@ class LineFollowerEnv(gym.Env):
             #image = bot.get_image(robot_x, robot_y, 0.2 + 2, robot_x, robot_y, 0)
             
             #top view
-            top_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 0.6, robot_x, robot_y, robot_z, width = width, height = height)
+            top_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 0.3, robot_x, robot_y, robot_z, width = width, height = height)
 
             #third person view
-            tp_view = self.bot.get_image(yaw*180.0/self.pi - 90, -40.0, 0.0, 0.1, robot_x + 0.02, robot_y, robot_z, width = width, height = height, fov=100)
+            dist = 0.02
+            tp_view = self.bot.get_image(yaw*180.0/self.pi - 90, -40.0, 0.0, 0.1, robot_x+dist*numpy.cos(yaw), robot_y+dist*numpy.sin(yaw), robot_z, width = width, height = height, fov=100)
 
             #camera view
             cam_view = self._get_camera_view()
@@ -161,7 +160,15 @@ class LineFollowerEnv(gym.Env):
             dist = 0.05
             sensor_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 0.02, robot_x+dist*numpy.cos(yaw), robot_y+dist*numpy.sin(yaw), robot_z + 0.02, width = width, height = height, fov=100)
 
-            image = numpy.vstack([numpy.hstack([top_view, tp_view]), numpy.hstack([cam_view, sensor_view])])
+            separator_width = 2
+            vertical_separator   = numpy.ones((height, separator_width, 3))*0.5
+            horizontal_separator = numpy.ones((separator_width, width*2 + separator_width, 3))*0.5
+
+            image_a = numpy.hstack([ numpy.hstack([top_view, vertical_separator]), tp_view])
+            image_b = numpy.hstack([ numpy.hstack([cam_view, vertical_separator]), sensor_view])
+
+            image = numpy.vstack([numpy.vstack([image_a, horizontal_separator]), image_b] )
+            
 
             image = numpy.clip(image, 0.0, 1.0)
         

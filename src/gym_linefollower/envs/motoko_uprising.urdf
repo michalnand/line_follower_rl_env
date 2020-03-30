@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="line_follower">
- 	<material name="red">
+ 	 <material name="red">
         <color rgba="1 0 0 1"/>
     </material>
 
@@ -25,7 +25,7 @@
         		<box size="0.047 0.064 0.0025"/>
       		</geometry>
             <material name ="blue"/>
-		</visual>
+		  </visual>
   
   		<collision>
         	<geometry>

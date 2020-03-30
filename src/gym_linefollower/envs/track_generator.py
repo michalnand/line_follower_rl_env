@@ -7,7 +7,7 @@ class TrackGenerator:
 
     def __init__(self, base_points_count = 1024, width = 15.0):
 
-        numpy.random.seed(100)
+        numpy.random.seed(50)
 
         self.base_points_count = base_points_count
         self.width = width

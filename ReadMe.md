@@ -1,6 +1,7 @@
 # Line Follower reinforcement learning evironment
 
 <img src="./imgs/env.png" width="256" height="256">
+<img src="./imgs/animation.gif" width="256" height="256">
 
 ### Observation
 camera view from front of robot
