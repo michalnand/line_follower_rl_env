@@ -25,5 +25,5 @@ numpy, gym, pybullet, cv2
 
 ### Installing
 
-#### TODO not workking yey
+#### TODO not workking yet
 pip3 install -e .
