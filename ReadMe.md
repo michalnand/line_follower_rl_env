@@ -1,7 +1,7 @@
 # Line Follower reinforcement learning evironment
 
 
-![screenshot](./imgs/env.png | width=256)
+![screenshot](./imgs/env.png =256x256)
 
 ### Observation
 camera view from front of robot
