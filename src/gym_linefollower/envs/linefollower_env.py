@@ -12,7 +12,7 @@ from gym import spaces
 
 import pybullet_client
 import track_generator
-import line_follower_bot
+import linefollower_bot
 import observation
 
 
@@ -27,7 +27,7 @@ class LineFollowerEnv(gym.Env):
 
         self.pb_client = pybullet_client.Client(pybullet.DIRECT)
       
-        self.line = track_generator.TrackGenerator(2048, 0.015)
+        self.line = track_generator.TrackGenerator(1024, 0.015)
         self.line.save("./line.obj")
 
         width  = 96
@@ -68,7 +68,7 @@ class LineFollowerEnv(gym.Env):
         self.pb_client.setGravity(0, 0, -9.81)
         self.pb_client.setTimeStep(self.dt)
 
-        self.bot = line_follower_bot.LineFollowerBot(self.pb_client, "./motoko_uprising.urdf", "./track_plane.urdf", starting_point = self.line.get_start_random())
+        self.bot = linefollower_bot.LineFollowerBot(self.pb_client, "./motoko_uprising.urdf", "./track_plane.urdf", starting_point = self.line.get_start_random())
 
         self.left_power  = 0.0
         self.right_power = 0.0

@@ -7,7 +7,7 @@ class TrackGenerator:
 
     def __init__(self, base_points_count = 1024, width = 15.0):
 
-        numpy.random.seed(0)
+        numpy.random.seed(100)
 
         self.base_points_count = base_points_count
         self.width = width
@@ -72,13 +72,13 @@ class TrackGenerator:
         return len(self.points)
 
     def get_start(self, idx = 4):
-        dx = self.points[idx][0] - self.points[idx-1][0]
-        dy = self.points[idx][1] - self.points[idx-1][1]
+        dx = self.points[idx + 1][0] - self.points[idx][0]
+        dy = self.points[idx + 1][1] - self.points[idx][1]
 
         yaw = numpy.arctan2(dy, dx)
 
         point       = [self.points[idx][0], self.points[idx][1], 0.05]
-        orientation = [yaw + self.pi, 0.0, 0.0]
+        orientation = [yaw + 0*self.pi, 0.0, 0.0]
         return [point, orientation]
 
     def get_start_random(self):
@@ -103,7 +103,7 @@ class TrackGenerator:
 
         idx_current = 1
 
-        for i in range(self.base_points_count-2):
+        for i in range(self.base_points_count-3):
             
             points_now   = self._get_points(self.width, self.points[i + 0], self.points[i + 1])
             points_next  = self._get_points(self.width, self.points[i + 1], self.points[i + 2])

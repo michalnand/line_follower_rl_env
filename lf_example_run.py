@@ -1,3 +1,4 @@
 import gym
+import gym_linefollower
 
-env = gym.make('line_follower-v0')
+env = gym.make('LineFollower-v0')
