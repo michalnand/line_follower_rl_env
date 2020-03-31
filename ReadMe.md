@@ -49,4 +49,6 @@ numpy, gym, pybullet, opencv-python
 
 ### Installing
 
+```bash
 pip3 install -e .
+```
