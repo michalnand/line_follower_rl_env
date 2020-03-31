@@ -22,9 +22,28 @@ discrete, 16 actions - powers to motors
 
 #### TODO example
 
+random agent :
+
+```python
+import gym
+import gym_linefollower
+
+env = gym.make('linefollower-v0')
+
+env.reset()
+    
+while True:
+    action = env.action_space.sample()
+    state, reward, done, _ = env.step(action)
+    env.render()
+		
+    if done:
+        env.reset()
+```
+
 ### Prerequisites
 
-numpy, gym, pybullet, cv2
+numpy, gym, pybullet, opencv-python
 
 ### Installing
 

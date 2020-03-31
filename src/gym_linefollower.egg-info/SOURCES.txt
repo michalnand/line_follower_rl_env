@@ -1,0 +1,5 @@
+setup.py
+gym_linefollower.egg-info/PKG-INFO
+gym_linefollower.egg-info/SOURCES.txt
+gym_linefollower.egg-info/dependency_links.txt
+gym_linefollower.egg-info/top_level.txt

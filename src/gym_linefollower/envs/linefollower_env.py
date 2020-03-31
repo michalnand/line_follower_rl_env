@@ -5,15 +5,17 @@ from gym.utils import seeding
 import pybullet
 import numpy
 import time
+import os
 
 from matplotlib import pyplot as plt
 from gym import spaces
 
 
-import pybullet_client
-import track_generator
-import linefollower_bot
-import observation
+
+from gym_linefollower.envs.pybullet_client import PybulletClient
+from gym_linefollower.envs.track_generator import TrackGenerator
+from gym_linefollower.envs.linefollower_bot import LineFollowerBot
+from gym_linefollower.envs.observation import Observation
 
 
 class LineFollowerEnv(gym.Env):
@@ -24,15 +26,17 @@ class LineFollowerEnv(gym.Env):
         self.pi = 3.141592654
 
 
-        self.pb_client = pybullet_client.Client(pybullet.DIRECT)
+        self.pb_client = PybulletClient(pybullet.DIRECT)
+
+        self.models_path = os.path.dirname(__file__) + "/models/"
       
-        self.line = track_generator.TrackGenerator(1024, 0.015)
-        self.line.save("./line.obj")
+        self.line = TrackGenerator(1024, 0.015)
+        self.line.save(self.models_path + "./line.obj")
 
         width  = 96
         height = 96
 
-        self.obs = observation.Observation(width, height, frame_stacking)
+        self.obs = Observation(width, height, frame_stacking)
         self.observation_space = spaces.Box(low=0, high=1.0, shape=(width, height, frame_stacking), dtype=numpy.float)
  
         self.action_space = spaces.Discrete(16)
@@ -62,11 +66,12 @@ class LineFollowerEnv(gym.Env):
 
     def reset(self):
 
+
         self.pb_client.resetSimulation()
         self.pb_client.setGravity(0, 0, -9.81)
         self.pb_client.setTimeStep(self.dt)
 
-        self.bot = linefollower_bot.LineFollowerBot(self.pb_client, "./motoko_uprising_simple.urdf", "./track_plane.urdf", starting_point = self.line.get_start_random())
+        self.bot = LineFollowerBot(self.pb_client, self.models_path + "./robot_simple.urdf", self.models_path + "./track_plane.urdf", starting_point = self.line.get_start_random())
 
         self.left_power  = 0.0
         self.right_power = 0.0
@@ -137,7 +142,7 @@ class LineFollowerEnv(gym.Env):
         
 
 
-    def render(self):
+    def render(self, mode):
         if self.render_steps%4 == 0:
             robot_x, robot_y, robot_z, pitch, roll, yaw = self.bot.get_position()
 

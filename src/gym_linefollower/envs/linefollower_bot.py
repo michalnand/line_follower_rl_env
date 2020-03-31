@@ -1,4 +1,3 @@
-import motors
 import pybullet
 import numpy
 
@@ -8,7 +7,9 @@ class LineFollowerBot:
         self.pb_client = pb_client
 
         orientation = self._to_quaternion(starting_point[1][0], 0.0, 0.0)
+
         self.bot_model = self.pb_client.loadURDF(model_file_name, basePosition = starting_point[0], baseOrientation = orientation)
+        
         self.track_plane_model = self.pb_client.loadURDF(plane_file_name)
 
 

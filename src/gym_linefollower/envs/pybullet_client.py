@@ -3,7 +3,7 @@ import inspect
 import pybullet
 
 
-class Client():
+class PybulletClient():
     """A wrapper for pybullet to manage different clients."""
 
     def __init__(self, connection_mode=pybullet.DIRECT):
