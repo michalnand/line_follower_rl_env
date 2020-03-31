@@ -8,6 +8,10 @@ camera view from front of robot
 - state : 4stacked grayscale frames, channels first, 4x96x96
 - values float range <0.0, 1.0>
 
+### TODO adn bugs
+- random lines
+- remove rendering glitches !!!
+
 
 ### Actions
 discrete, 16 actions - powers to motors
@@ -20,9 +24,7 @@ discrete, 16 actions - powers to motors
 
 ## Getting Started
 
-#### TODO example
-
-random agent :
+#### random agent :
 
 ```python
 import gym
@@ -47,5 +49,4 @@ numpy, gym, pybullet, opencv-python
 
 ### Installing
 
-#### TODO not workking yet
 pip3 install -e .
