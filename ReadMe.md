@@ -12,8 +12,8 @@ camera view from front of robot
 - random lines
 - remove rendering glitches !!!
 
-
-### Actions
+ 
+### Actions 
 discrete, 16 actions - powers to motors
 
 
