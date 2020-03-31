@@ -8,7 +8,7 @@ camera view from front of robot
 - state : 4stacked grayscale frames, channels first, 4x96x96
 - values float range <0.0, 1.0>
 
-### TODO adn bugs
+### TODO and bugs
 - random lines
 - remove rendering glitches !!!
 
