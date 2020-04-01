@@ -115,7 +115,7 @@ class LineFollowerEnv(gym.Env):
         l_vel, r_vel = self.bot.get_wheel_velocity()
         l_tor, r_tor = self.bot.get_wheel_torque()
 
-
+        print(robot_x, robot_y, yaw)
         left_power_target, right_power_target = self.actions[action]
         #left_power_target, right_power_target = 0.0, 0.0
 
