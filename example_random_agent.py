@@ -24,12 +24,13 @@ while True:
     action = env.action_space.sample()
     state, reward, done, _ = env.step(action)
 
-    env.render()
+    #env.render()
 
     steps+= 1
 		
     if done:
         env.reset()
         games+= 1
-        print("steps = ", steps, " games = ", games)
+    
+    print("steps = ", steps, " games = ", games, reward, done)
     
