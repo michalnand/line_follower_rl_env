@@ -1,4 +1,3 @@
-import pybullet
 import numpy
 
 class LineFollowerBot:

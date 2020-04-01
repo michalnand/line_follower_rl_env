@@ -2,7 +2,6 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 
-import pybullet
 import numpy
 import time
 import os
@@ -34,7 +33,7 @@ class LineFollowerEnv(gym.Env):
 
         self.advanced_mode = advanced_mode
        
-        self.pb_client = PybulletClient(pybullet.DIRECT)
+        self.pb_client = PybulletClient()
 
         self.models_path = os.path.dirname(__file__)
         if len(self.models_path) <= 0:
@@ -249,14 +248,6 @@ class LineFollowerEnvAdvancedFS4(LineFollowerEnv):
 class LineFollowerEnvAdvancedFS8(LineFollowerEnv):
     def __init__(self):
         LineFollowerEnv.__init__(self, 8, True)
-
-
-
-
-def draw_fig(rgb_data):
-    plt.imshow(rgb_data, cmap='gray', aspect='equal')
-    plt.pause(0.01)
-    plt.close()
 
 
 
