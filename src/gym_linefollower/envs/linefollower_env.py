@@ -89,6 +89,12 @@ class LineFollowerEnv(gym.Env):
 
         self.bot = LineFollowerBot(self.pb_client, self.models_path + "/models/robot_simple.urdf", starting_position = starting_position)
 
+
+        for i in range(100):
+            self.pb_client.stepSimulation()
+
+
+
         self.left_power  = 0.0
         self.right_power = 0.0
 
@@ -115,7 +121,9 @@ class LineFollowerEnv(gym.Env):
         l_vel, r_vel = self.bot.get_wheel_velocity()
         l_tor, r_tor = self.bot.get_wheel_torque()
 
+        print("action   = ", action)
         print("position = ", robot_x, robot_y, robot_z, yaw)
+        print("\n\n")
         left_power_target, right_power_target = self.actions[action]
         #left_power_target, right_power_target = 0.0, 0.0
 

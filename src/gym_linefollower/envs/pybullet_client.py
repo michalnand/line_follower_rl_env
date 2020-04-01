@@ -17,7 +17,7 @@ class PybulletClient():
         try:
             pybullet.disconnect(physicsClientId=self._client)
         except pybullet.error:
-            pass
+            print("pybullet.disconnect error")
 
     def __getattr__(self, name):
         attribute = getattr(pybullet, name)
