@@ -45,20 +45,22 @@ env = gym.make('linefollowerAdvanced-v1') #episodic random from 32 lines, state 
 
 state = env.reset()
 print("state_shape = ", state.shape)
+
 steps = 0
+games = 0
     
 while True:
     action = env.action_space.sample()
     state, reward, done, _ = env.step(action)
 
-    #draw_fig(state[0])
     env.render()
 
-    print(steps)
     steps+= 1
 		
     if done:
         env.reset()
+        games+= 1
+        print("steps = ", steps, " games = ", games)
 ```
 
 ### Prerequisites
