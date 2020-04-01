@@ -7,32 +7,39 @@ import numpy
 import time
 import os
 
+from enum import Enum
+
+
 from matplotlib import pyplot as plt
 from gym import spaces
 
 
-
 from gym_linefollower.envs.pybullet_client import PybulletClient
-from gym_linefollower.envs.track_generator import TrackGenerator
+from gym_linefollower.envs.track_load import TrackLoad
 from gym_linefollower.envs.linefollower_bot import LineFollowerBot
 from gym_linefollower.envs.observation import Observation
 
 
+
+
+
+
 class LineFollowerEnv(gym.Env):
 
-    def __init__(self, frame_stacking = 4):
+    def __init__(self, frame_stacking = 4, advanced_mode = False):
+        gym.Env.__init__(self)
 
         self.dt = 1.0/200.0
         self.pi = 3.141592654
 
-
+        self.advanced_mode = advanced_mode
+       
         self.pb_client = PybulletClient(pybullet.DIRECT)
 
-        self.models_path = os.path.dirname(__file__) + "/models/"
+        self.models_path = os.path.dirname(__file__)
+        if len(self.models_path) <= 0:
+            self.models_path = "."
       
-        self.line = TrackGenerator(1024, 0.015)
-        self.line.save(self.models_path + "./line.obj")
-
         width  = 96
         height = 96
 
@@ -63,6 +70,8 @@ class LineFollowerEnv(gym.Env):
         self.actions.append([0.4, 0.5])
         self.actions.append([0.1, 0.3])
 
+        self.time_step = 0
+
 
     def reset(self):
 
@@ -71,7 +80,15 @@ class LineFollowerEnv(gym.Env):
         self.pb_client.setGravity(0, 0, -9.81)
         self.pb_client.setTimeStep(self.dt)
 
-        self.bot = LineFollowerBot(self.pb_client, self.models_path + "./robot_simple.urdf", self.models_path + "./track_plane.urdf", starting_point = self.line.get_start_random())
+        if self.advanced_mode:
+            track_idx = numpy.random.randint(32)
+            self.line = TrackLoad(self.pb_client, self.models_path + "/models_tracks/" + str(track_idx))
+        else:
+            self.line = TrackLoad(self.pb_client, self.models_path + "/models/track_plane_template")
+        
+        starting_position = self.line.get_start_random()
+
+        self.bot = LineFollowerBot(self.pb_client, self.models_path + "/models/robot_simple.urdf", starting_position = starting_position)
 
         self.left_power  = 0.0
         self.right_power = 0.0
@@ -91,6 +108,7 @@ class LineFollowerEnv(gym.Env):
 
 
     def step(self, action):
+        self.time_step+= 1
 
         robot_x, robot_y, robot_z, pitch, roll, yaw = self.bot.get_position()
 
@@ -142,7 +160,7 @@ class LineFollowerEnv(gym.Env):
         
 
 
-    def render(self, mode):
+    def render(self, mode = None):
         if self.render_steps%4 == 0:
             robot_x, robot_y, robot_z, pitch, roll, yaw = self.bot.get_position()
 
@@ -152,7 +170,7 @@ class LineFollowerEnv(gym.Env):
             #image = bot.get_image(robot_x, robot_y, 0.2 + 2, robot_x, robot_y, 0)
             
             #top view
-            top_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 0.3, robot_x, robot_y, robot_z, width = width, height = height)
+            top_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 0.25, robot_x, robot_y, robot_z, width = width, height = height)
 
             #third person view
             dist = 0.02
@@ -162,15 +180,19 @@ class LineFollowerEnv(gym.Env):
             cam_view = self._get_camera_view()
 
             #sensor view
-            dist = 0.05
-            sensor_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 0.02, robot_x+dist*numpy.cos(yaw), robot_y+dist*numpy.sin(yaw), robot_z + 0.02, width = width, height = height, fov=100)
+            #dist = 0.05
+            #sensor_view = self.bot.get_image(yaw*180.0/self.pi - 90, -90.0, 0.0, 0.02, robot_x+dist*numpy.cos(yaw), robot_y+dist*numpy.sin(yaw), robot_z + 0.02, width = width, height = height, fov=100)
+
+            #side view
+            dist = 0.02
+            side_view = self.bot.get_image(yaw*180.0/self.pi - 0, -40.0, 0.0, 0.1, robot_x+dist*numpy.cos(yaw), robot_y+dist*numpy.sin(yaw), robot_z, width = width, height = height, fov=100)
 
             separator_width = 2
             vertical_separator   = numpy.ones((height, separator_width, 3))*0.5
             horizontal_separator = numpy.ones((separator_width, width*2 + separator_width, 3))*0.5
 
             image_a = numpy.hstack([ numpy.hstack([top_view, vertical_separator]), tp_view])
-            image_b = numpy.hstack([ numpy.hstack([cam_view, vertical_separator]), sensor_view])
+            image_b = numpy.hstack([ numpy.hstack([cam_view, vertical_separator]), side_view])
 
             image = numpy.vstack([numpy.vstack([image_a, horizontal_separator]), image_b] )
             
@@ -203,6 +225,32 @@ class LineFollowerEnv(gym.Env):
         return self.obs.process(self._get_camera_view())
     
 
+class LineFollowerEnvSimpleFS1(LineFollowerEnv):
+    def __init__(self):
+        LineFollowerEnv.__init__(self, 1, False)
+
+class LineFollowerEnvSimpleFS4(LineFollowerEnv):
+    def __init__(self):
+        LineFollowerEnv.__init__(self, 4, False)
+
+class LineFollowerEnvSimpleFS8(LineFollowerEnv):
+    def __init__(self):
+        LineFollowerEnv.__init__(self, 8, False)
+
+
+class LineFollowerEnvAdvancedFS1(LineFollowerEnv):
+    def __init__(self):
+        LineFollowerEnv.__init__(self, 1, True)
+
+class LineFollowerEnvAdvancedFS4(LineFollowerEnv):
+    def __init__(self):
+        LineFollowerEnv.__init__(self, 4, True)
+
+class LineFollowerEnvAdvancedFS8(LineFollowerEnv):
+    def __init__(self):
+        LineFollowerEnv.__init__(self, 8, True)
+
+
 
 
 def draw_fig(rgb_data):
@@ -215,7 +263,7 @@ def draw_fig(rgb_data):
 
 if __name__ == "__main__":
 
-    env = LineFollowerEnv() #gym.make("BubbleShooter-v0")
+    env = LineFollowerEnv()
     env.reset()
     env.render()
     
@@ -226,3 +274,5 @@ if __name__ == "__main__":
 		
         if done:
             env.reset()
+
+        print("reward = ", reward)

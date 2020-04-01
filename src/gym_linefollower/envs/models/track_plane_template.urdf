@@ -1,15 +1,7 @@
 <?xml version="1.0"?> 
 <robot name="world">
  
-
 	<link name="plane">
-
-
-		<contact>
-		 	<lateral_friction value="1"/>
-			<stiffness value="300000"/>
-          	<damping value="1000"/>
-  		</contact>
 
    		<inertial>
 		    <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -19,19 +11,22 @@
 
     	<visual>
       		<geometry>
-        		<box size="10.0 10.0 0.01"/>
+        		<box size="10.0 10.0 0.001"/>
       		</geometry>
 
-			<material name="white">
-        		<color rgba="1 1 1 1"/>
+			<material name="plane_color">
+        		<color rgba="1.0 1.0 1.0 1"/>
       		</material>
        	
 			<origin rpy="0 0 0" xyz="0 0 0"/>
-
-
 		</visual>
 
-  
+		<contact>
+		 	<lateral_friction value="1"/>
+			<stiffness value="300000"/>
+          	<damping value="1000"/>
+  		</contact>
+
   		<collision>
 			<geometry>
         		<box size="10.0 10.0 0.01"/>
@@ -52,14 +47,14 @@
 
     	<visual>
       		<geometry>
-				<mesh filename="./line.obj" scale="1 1 1"/>
+				<mesh filename="./models/track_plane_template.obj" scale="1 1 1"/>
       		</geometry>
        		
-			<material name="black">
+			<material name="line_color">
         		<color rgba="0 0 0 1"/>
       		</material>
 	    
-			<origin rpy="0 0 0" xyz="0 0 0.015"/>
+			<origin rpy="0 0 0" xyz="0 0 0.001"/>
 		</visual>
     
 	</link>

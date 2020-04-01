@@ -16,9 +16,10 @@ class Observation:
     def process(self, frame):
         resized = self._resize(frame)
         
-        for i in reversed(range(self.frame_stacking-1)):
-            self.observation[i+1] = self.observation[i].copy()
-        
+        if self.frame_stacking > 1:
+            for i in reversed(range(self.frame_stacking-1)):
+                self.observation[i+1] = self.observation[i].copy()
+            
         self.observation[0] = numpy.array(resized).copy()/256.0
 
         return self.observation

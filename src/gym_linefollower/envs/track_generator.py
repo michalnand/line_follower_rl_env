@@ -1,23 +1,25 @@
-import numpy
-import matplotlib.pyplot as plt
+import xml.etree.ElementTree as ET
 import os
+import numpy
+import json
 
-class TrackGenerator:
+import matplotlib.pyplot as plt
 
 
+class TrackPlaneGenerator():
+    
     def __init__(self, base_points_count = 1024, width = 15.0):
 
-        numpy.random.seed(50)
-
-        self.base_points_count = base_points_count
-        self.width = width
+        self.base_points_count  = base_points_count
+        self.width              = width/1000.0
+        self.decimal_places     = 7
 
         points = []
 
         self.pi = 3.141591654
 
-        p_curve_change = 0.2 #0.01 .. 0.2
-        dr_max         = 0.02
+        p_curve_change = 0.3 #0.01 .. 0.2
+        dr_max         = 0.04
 
 
         dphi         = 2.0*self.pi/self.base_points_count
@@ -68,38 +70,52 @@ class TrackGenerator:
 
         self.points = numpy.asarray(points)
 
-    def get_length(self):
-        return len(self.points)
+    def show(self, file_name = None):
+        
+        tmp = numpy.transpose(self.points)
 
-    def get_start(self, idx = 4):
-        dx = self.points[idx + 1][0] - self.points[idx][0]
-        dy = self.points[idx + 1][1] - self.points[idx][1]
+        plt.clf()
+        plt.plot(tmp[0], tmp[1])
 
-        yaw = numpy.arctan2(dy, dx)
+        if file_name is not None:
+            plt.savefig(file_name)
+        else:
+            plt.show()
 
-        point       = [self.points[idx][0], self.points[idx][1], 0.05]
-        orientation = [yaw + 0*self.pi, 0.0, 0.0]
-        return [point, orientation]
 
-    def get_start_random(self):
-        idx = numpy.random.randint((self.get_length()*80)//100) + 4
-        return self.get_start(idx)
+    def save(self, idx, path = "./models_tracks/"):
 
-    def get_closest(self, x, y):
-        position = [x, y]
+        color_idx = numpy.random.randint(2)
 
-        dif = self.points - position
-        distances = (numpy.sum((dif**2), axis = 1))**0.5
+        if color_idx == 0:
+            plane_color = [1, 1, 1, 1]
+            line_color  = [0, 0, 0, 1]
+        elif color_idx == 1:
+            plane_color = [0, 0, 0, 1]
+            line_color  = [1, 1, 1, 1]
 
-        closest_idx         = numpy.argmin(distances)
-        closest_distance    = distances[closest_idx]
+        file_name_prefix = path + str(idx)
 
-        return closest_idx, closest_distance
+        self._save_obj(file_name_prefix)
+        self._save_urdf(plane_color, line_color, file_name_prefix)
+        self._save_json(file_name_prefix)
+        self.show(file_name_prefix + ".png")
 
-       
-    def save(self, file_name):
+    def _save_json(self, file_name_prefix):
+        json_data = {}
+        json_data["points_count"] = len(self.points)
+        json_data["points"] = []
 
-        f = open(file_name,"w") 
+        for i in range(len(self.points)):
+            points = [round(self.points[i][0], self.decimal_places), round(self.points[i][1], self.decimal_places)]
+            json_data["points"].append(points)
+
+        outfile = open(file_name_prefix + ".json", "w")
+        json.dump(json_data, outfile)
+
+    def _save_obj(self, file_name_prefix):
+
+        f = open(file_name_prefix + ".obj" , "w") 
 
         idx_current = 1
 
@@ -107,7 +123,6 @@ class TrackGenerator:
             
             points_now   = self._get_points(self.width, self.points[i + 0], self.points[i + 1])
             points_next  = self._get_points(self.width, self.points[i + 1], self.points[i + 2])
-
 
             points = []
             points.append(points_now[0])
@@ -120,6 +135,27 @@ class TrackGenerator:
         f.flush()
         os.fsync(f)
         f.close()
+
+    def _save_urdf(points, plane_color = [10, 11, 12, 13], line_color = [1, 2, 3, 4], file_name_prefix = "./models_tracks/file"):
+        tree = ET.parse("./models/" + "track_plane_template.urdf")
+        root = tree.getroot()
+
+        #change file name
+        root[1][1][0][0].attrib['filename'] = file_name_prefix + ".obj"
+        
+
+        #change line color
+        line_color_str = map(str, line_color)    
+        line_color_str = ' '.join(line_color_str)     
+        root[1][1][1][0].attrib['rgba'] = line_color_str
+    
+
+        #change plane color
+        plane_color_str = map(str, plane_color)    
+        plane_color_str = ' '.join(plane_color_str)     
+        root[0][1][1][0].attrib['rgba'] = plane_color_str
+    
+        tree.write(file_name_prefix + ".urdf")
 
     def _get_points(self, width, start_point, end_point):
 
@@ -153,13 +189,12 @@ class TrackGenerator:
         return points
 
     def _get_obj(self, points, idx_start = 1):
-
         idx_end = len(points) + idx_start
         
         result = ""
 
         for i in range(len(points)):
-            result+= "v " + str(points[i][0]) + " " + str(points[i][1]) + " " + str(0.0) + "\n"
+            result+= "v " + str(round(points[i][0], self.decimal_places)) + " " + str(round(points[i][1], self.decimal_places)) + " " + str(0.0) + "\n"
 
           
         result+= "f " + str(idx_start + 0) + " " + str(idx_start + 2) + " " + str(idx_start + 1) + "\n"
@@ -168,37 +203,13 @@ class TrackGenerator:
 
         return result, idx_end
 
-    def _calc_dr_for_straight(self, r, dphi1, dphi2):
+if __name__ == "__main__":
+    for i in range(32):
+        generator = TrackPlaneGenerator(1024, 15.0)
+        generator.save(i)
 
-        alpha = self.pi/2.0 + 0.5*dphi1
-        beta  = self.pi - (dphi2 + alpha)
-
-        arg = (alpha/beta)*numpy.sin(r)
-        result = numpy.arcsin(arg) - r
-
-        return result
-
-    def show(self):
-        
-        tmp = numpy.transpose(self.points)
-        plt.plot(tmp[0], tmp[1])
-        plt.show()
-
-
-
-if __name__ == '__main__':
-    line = TrackGenerator(1024, 0.015)
-
-    line.show()
-    #line.save("line.obj")
-
-
-'''
-v  0.0      0.0  0.0
-v  0.025    0.0  0.0
-v  0.025    0.1  0.0
-v  0.0      0.1  0.0
-
-f  1  2  3
-f  1  3  4
-'''
+    '''
+    generator = TrackPlaneGenerate(1024, 15.0)
+    generator.show()
+    generator.save(1000)
+    '''

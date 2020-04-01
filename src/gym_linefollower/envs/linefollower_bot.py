@@ -1,17 +1,15 @@
 import pybullet
 import numpy
 
-
 class LineFollowerBot:
-    def __init__(self, pb_client, model_file_name, plane_file_name, starting_point):
+    def __init__(self, pb_client, model_file_name, starting_position):
         self.pb_client = pb_client
 
-        orientation = self._to_quaternion(starting_point[1][0], 0.0, 0.0)
+        orientation = self._to_quaternion(starting_position[1][0], 0.0, 0.0)
 
-        self.bot_model = self.pb_client.loadURDF(model_file_name, basePosition = starting_point[0], baseOrientation = orientation)
+     
+        self.bot_model = self.pb_client.loadURDF(model_file_name, basePosition = starting_position[0], baseOrientation = orientation)
         
-        self.track_plane_model = self.pb_client.loadURDF(plane_file_name)
-
 
         self.speed_max_rpm  = 1000.0
 
