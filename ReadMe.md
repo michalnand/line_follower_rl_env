@@ -29,8 +29,6 @@ discrete, 16 actions - powers to motors
 ```python
 import gym
 import gym_linefollower
-from matplotlib import pyplot as plt
-
 
 #env = gym.make('linefollowerSimple-v0') #single line, state shape 1x96x96
 #env = gym.make('linefollowerSimple-v1') #single line, state shape 4x96x96, 4 frames stacked
@@ -47,11 +45,7 @@ env = gym.make('linefollowerAdvanced-v1') #episodic random from 32 lines, state 
 
 state = env.reset()
 print("state_shape = ", state.shape)
-
-def draw_fig(rgb_data):
-    plt.imshow(rgb_data, cmap='gray', aspect='equal')
-    plt.pause(0.01)
-    plt.close()
+steps = 0
     
 while True:
     action = env.action_space.sample()
@@ -59,6 +53,9 @@ while True:
 
     #draw_fig(state[0])
     env.render()
+
+    print(steps)
+    steps+= 1
 		
     if done:
         env.reset()
