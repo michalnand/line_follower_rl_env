@@ -6,9 +6,9 @@ import numpy
 import time
 import os
 
-import pybullet
 import cv2
 
+from gym_linefollower.envs.pybullet_client import PybulletClient
 from gym_linefollower.envs.track_load import TrackLoad
 from gym_linefollower.envs.linefollower_bot import LineFollowerBot
 from gym_linefollower.envs.observation import Observation
@@ -60,16 +60,15 @@ class LineFollowerEnv(gym.Env):
 
         self.time_step = 0
 
-        self.pb_client = pybullet.connect(pybullet.DIRECT)
-        #print("connection status = ", pybullet.isConnected(self.pb_client))
+        self.pb_client = PybulletClient()
         self.reset()
 
 
     def reset(self):
-        pybullet.resetSimulation(physicsClientId = self.pb_client)
+        self.pb_client.resetSimulation()
 
-        pybullet.setGravity(0, 0, -9.81, physicsClientId = self.pb_client)
-        pybullet.setTimeStep(self.dt, physicsClientId = self.pb_client)
+        self.pb_client.setGravity(0, 0, -9.81, )
+        self.pb_client.setTimeStep(self.dt, )
 
         if self.advanced_mode:
             track_idx = numpy.random.randint(32)
@@ -83,7 +82,7 @@ class LineFollowerEnv(gym.Env):
 
 
         for i in range(100):
-            pybullet.stepSimulation(physicsClientId = self.pb_client)
+            self.pb_client.stepSimulation()
 
 
 
@@ -122,7 +121,7 @@ class LineFollowerEnv(gym.Env):
     
         self.bot.set_throttle(self.left_power, self.right_power)
    
-        pybullet.stepSimulation(physicsClientId = self.pb_client)
+        self.pb_client.stepSimulation()
 
 
         closest_idx, closest_distance = self.line.get_closest(robot_x, robot_y)
