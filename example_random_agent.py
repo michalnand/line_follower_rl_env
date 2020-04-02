@@ -34,5 +34,5 @@ while True:
         env.reset()
         games+= 1
     
-    print("steps = ", steps, " games = ", games, " score = ", reward)
+    print("steps = ", steps, " games = ", games, " score = ", score)
     
