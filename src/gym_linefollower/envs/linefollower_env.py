@@ -11,17 +11,9 @@ import pybullet
 from matplotlib import pyplot as plt
 
 
-#from gym_linefollower.envs.track_load import TrackLoad
-#from gym_linefollower.envs.linefollower_bot import LineFollowerBot
-#from gym_linefollower.envs.observation import Observation
-
-
-
-from track_load import TrackLoad
-from linefollower_bot import LineFollowerBot
-from observation import Observation
-
-
+from gym_linefollower.envs.track_load import TrackLoad
+from gym_linefollower.envs.linefollower_bot import LineFollowerBot
+from gym_linefollower.envs.observation import Observation
 
 
 
@@ -35,8 +27,6 @@ class LineFollowerEnv(gym.Env):
 
         self.advanced_mode = advanced_mode
        
-        self.pb_client = pybullet.connect(pybullet.DIRECT)
-        #print("connection status = ", pybullet.isConnected(self.pb_client))
 
         self.models_path = os.path.dirname(__file__)
         if len(self.models_path) <= 0:
@@ -72,6 +62,8 @@ class LineFollowerEnv(gym.Env):
 
         self.time_step = 0
 
+        self.pb_client = pybullet.connect(pybullet.DIRECT)
+        #print("connection status = ", pybullet.isConnected(self.pb_client))
         self.reset()
 
 

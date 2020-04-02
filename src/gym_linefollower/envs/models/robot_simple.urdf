@@ -306,20 +306,20 @@
 
 
 
-	 <joint name="main_board_0_left_wheel" type="continuous">
-        <parent link="main_board_0"/>
-        <child link="left_wheel"/>
-        <origin rpy="-1.5708 0.0 0" xyz="0.0 0.04 0.0025"/>
-        <axis xyz="0 0 1"/>
-     </joint>
+	<joint name="main_board_0_left_wheel" type="continuous">
+    <parent link="main_board_0"/>
+    <child link="left_wheel"/>
+    <origin rpy="-1.5708 0.0 0" xyz="0.0 0.04 0.0025"/>
+    <axis xyz="0 0 1"/>
+  </joint>
 
 
-    <joint name="main_board_0_right_wheel" type="continuous">
-        <parent link="main_board_0"/>
-        <child link="right_wheel"/>
-        <origin rpy="1.5708 0.0 0" xyz="0.0 -0.04 0.0025"/>
-        <axis xyz="0 0 -1"/>
-     </joint>
+  <joint name="main_board_0_right_wheel" type="continuous">
+    <parent link="main_board_0"/>
+    <child link="right_wheel"/>
+    <origin rpy="1.5708 0.0 0" xyz="0.0 -0.04 0.0025"/>
+    <axis xyz="0 0 -1"/>
+  </joint>
 
 
 
@@ -327,44 +327,44 @@
 	<joint name="main_board_0_main_board_1" type="fixed">
 		<parent link="main_board_0"/>
 		<child link="main_board_1"/>
-        <origin rpy="0 0 0" xyz="0.067 0.0 0.0"/>
+    <origin rpy="0 0 0" xyz="0.067 0.0 0.0"/>
  	</joint>
 
 	<joint name="main_board_1_front_0" type="fixed">
 		<parent link="main_board_1"/>
 		<child link="front_left"/>
-        <origin rpy="0 -0.3 0" xyz="0.0 0.044 -0.005"/>
+    <origin rpy="0 -0.3 0" xyz="0.0 0.044 -0.005"/>
  	</joint>
 
 	<joint name="main_board_1_front_1" type="fixed">
 		<parent link="main_board_1"/>
 		<child link="front_right"/>
-        <origin rpy="0 -0.3 0" xyz="0.0 -0.044 -0.005"/>
+    <origin rpy="0 -0.3 0" xyz="0.0 -0.044 -0.005"/>
  	</joint>
 
 
-    <joint name="main_board_0_main_board_left_a" type="fixed">
+  <joint name="main_board_0_main_board_left_a" type="fixed">
 		<parent link="main_board_0"/>
 		<child link="main_board_left_a"/>
-        <origin rpy="0 0 0" xyz="0.045 0.042 0.0"/>
+    <origin rpy="0 0 0" xyz="0.045 0.042 0.0"/>
  	</joint>
 
-    <joint name="main_board_0_main_board_left_b" type="fixed">
+  <joint name="main_board_0_main_board_left_b" type="fixed">
 		<parent link="main_board_0"/>
 		<child link="main_board_left_b"/>
-        <origin rpy="0 0 0.785" xyz="0.021 0.035 0.0"/>
+    <origin rpy="0 0 0.785" xyz="0.021 0.035 0.0"/>
  	</joint>
 
-    <joint name="main_board_0_main_board_right_a" type="fixed">
+  <joint name="main_board_0_main_board_right_a" type="fixed">
 		<parent link="main_board_0"/>
 		<child link="main_board_right_a"/>
-        <origin rpy="0 0 0" xyz="0.045 -0.042 0.0"/>
+    <origin rpy="0 0 0" xyz="0.045 -0.042 0.0"/>
  	</joint>
 
-    <joint name="main_board_0_main_board_right_b" type="fixed">
+  <joint name="main_board_0_main_board_right_b" type="fixed">
 		<parent link="main_board_0"/>
 		<child link="main_board_right_b"/>
-        <origin rpy="0 0 -0.785" xyz="0.021 -0.035 0.0"/>
+    <origin rpy="0 0 -0.785" xyz="0.021 -0.035 0.0"/>
  	</joint>
 
 </robot>
