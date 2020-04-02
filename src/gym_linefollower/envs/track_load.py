@@ -1,7 +1,6 @@
 import numpy
 import json
 import pybullet
-import matplotlib.pyplot as plt
 
 class TrackLoad:
     def __init__(self, pb_client, file_name_prefix):
@@ -52,7 +51,3 @@ class TrackLoad:
 
         return closest_idx, closest_distance
 
-    def show(self):  
-        tmp = numpy.transpose(self.points)
-        plt.plot(tmp[0], tmp[1])
-        plt.show()

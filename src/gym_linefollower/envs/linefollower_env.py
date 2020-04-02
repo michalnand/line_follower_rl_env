@@ -8,7 +8,7 @@ import os
 
 import pybullet
 
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 
 
 from gym_linefollower.envs.track_load import TrackLoad
@@ -206,6 +206,8 @@ class LineFollowerEnv(gym.Env):
         self.render_steps+= 1
 
     def _draw_fig(self, rgb_data):
+        pass
+        '''
         plt.rcParams['toolbar'] = 'None' 
         plt.style.use('dark_background')
 
@@ -218,6 +220,7 @@ class LineFollowerEnv(gym.Env):
         ax.imshow(rgb_data, aspect='equal')
         plt.pause(0.01)
         plt.close()
+        '''
 
     def _get_camera_view(self, width = 256, height = 256):
         robot_x, robot_y, robot_z, pitch, roll, yaw = self.bot.get_position()
