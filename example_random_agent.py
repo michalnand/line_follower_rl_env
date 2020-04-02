@@ -19,18 +19,20 @@ print("state_shape = ", state.shape)
 
 steps = 0
 games = 0
+score = 0
     
 while True:
     action = env.action_space.sample()
     state, reward, done, _ = env.step(action)
 
-    #env.render()
+    env.render()
 
     steps+= 1
+    score+= reward
 		
     if done:
         env.reset()
         games+= 1
     
-    print("steps = ", steps, " games = ", games, reward, done)
+    print("steps = ", steps, " games = ", games, " score = ", reward)
     

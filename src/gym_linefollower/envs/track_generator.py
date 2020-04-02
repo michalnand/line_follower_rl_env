@@ -3,7 +3,7 @@ import os
 import numpy
 import json
 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 class TrackPlaneGenerator():
@@ -70,7 +70,6 @@ class TrackPlaneGenerator():
 
         self.points = numpy.asarray(points)
 
-    '''
     def show(self, file_name = None):
         
         tmp = numpy.transpose(self.points)
@@ -82,7 +81,6 @@ class TrackPlaneGenerator():
             plt.savefig(file_name)
         else:
             plt.show()
-    '''
 
     def save(self, idx, path = "./models_tracks/"):
 
@@ -209,8 +207,6 @@ if __name__ == "__main__":
         generator = TrackPlaneGenerator(1024, 15.0)
         generator.save(i)
 
-    '''
     generator = TrackPlaneGenerate(1024, 15.0)
-    generator.show()
     generator.save(1000)
-    '''
+    generator.show()

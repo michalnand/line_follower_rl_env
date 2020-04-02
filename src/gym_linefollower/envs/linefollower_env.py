@@ -7,9 +7,7 @@ import time
 import os
 
 import pybullet
-
-# from matplotlib import pyplot as plt
-
+import cv2
 
 from gym_linefollower.envs.track_load import TrackLoad
 from gym_linefollower.envs.linefollower_bot import LineFollowerBot
@@ -115,13 +113,8 @@ class LineFollowerEnv(gym.Env):
         l_vel, r_vel = self.bot.get_wheel_velocity()
         l_tor, r_tor = self.bot.get_wheel_torque()
 
-        print("info = ", self.dt, self.pb_client)
-        print("action   = ", action)
-        print("position = ", robot_x, robot_y, robot_z, yaw)
-        print("\n\n")
         left_power_target, right_power_target = self.actions[action]
-        #left_power_target, right_power_target = 0.0, 0.0
-
+    
         k = 0.05
 
         self.left_power   = (1.0 - k)*self.left_power + k*left_power_target
@@ -199,28 +192,18 @@ class LineFollowerEnv(gym.Env):
             image = numpy.vstack([numpy.vstack([image_a, horizontal_separator]), image_b] )
             
 
-            image = numpy.clip(image, 0.0, 1.0)
-        
+            image = numpy.clip(255*image, 0.0, 255.0)
+
+            image = numpy.array(image, dtype=numpy.uint8)
             self._draw_fig(image)
         
         self.render_steps+= 1
 
-    def _draw_fig(self, rgb_data):
-        pass
-        '''
-        plt.rcParams['toolbar'] = 'None' 
-        plt.style.use('dark_background')
+    def _draw_fig(self, image):
+        rgb = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
 
-        fig = plt.figure()
-        #fig.set_size_inches(size)
-        ax = plt.Axes(fig, [0., 0., 1., 1.])
-        ax.set_axis_off()
-        fig.add_axes(ax)
-        plt.set_cmap('hot')
-        ax.imshow(rgb_data, aspect='equal')
-        plt.pause(0.01)
-        plt.close()
-        '''
+        cv2.imshow("line follower", rgb)  
+        cv2.waitKey(1)
 
     def _get_camera_view(self, width = 256, height = 256):
         robot_x, robot_y, robot_z, pitch, roll, yaw = self.bot.get_position()
