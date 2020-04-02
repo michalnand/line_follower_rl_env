@@ -1,4 +1,5 @@
 import numpy
+import pybullet
 
 class LineFollowerBot:
     def __init__(self, pb_client, model_file_name, starting_position):
@@ -7,7 +8,7 @@ class LineFollowerBot:
         orientation = self._to_quaternion(starting_position[1][0], 0.0, 0.0)
 
      
-        self.bot_model = self.pb_client.loadURDF(model_file_name, basePosition = starting_position[0], baseOrientation = orientation)
+        self.bot_model = pybullet.loadURDF(model_file_name, basePosition = starting_position[0], baseOrientation = orientation, physicsClientId = self.pb_client)
         
 
         self.speed_max_rpm  = 1000.0
@@ -23,7 +24,7 @@ class LineFollowerBot:
         
         for i in range(100):
             self.set_throttle(0.0, 0.0)
-            self.pb_client.stepSimulation()
+            pybullet.stepSimulation(physicsClientId = self.pb_client)
 
 
     def set_throttle(self, left_power, right_power):
@@ -37,24 +38,24 @@ class LineFollowerBot:
    
 
     def get_wheel_position(self):
-        l_pos, l_vel, l_react, l_torque = self.pb_client.getJointState(self.bot_model, self.left_wheel_joint)
-        r_pos, r_vel, r_react, r_torque = self.pb_client.getJointState(self.bot_model, self.right_wheel_joint)
+        l_pos, l_vel, l_react, l_torque = pybullet.getJointState(self.bot_model, self.left_wheel_joint, physicsClientId = self.pb_client)
+        r_pos, r_vel, r_react, r_torque = pybullet.getJointState(self.bot_model, self.right_wheel_joint, physicsClientId = self.pb_client)
         return l_pos, r_pos
 
     def get_wheel_torque(self):
-        l_pos, l_vel, l_react, l_torque = self.pb_client.getJointState(self.bot_model, self.left_wheel_joint)
-        r_pos, r_vel, r_react, r_torque = self.pb_client.getJointState(self.bot_model, self.right_wheel_joint)
+        l_pos, l_vel, l_react, l_torque = pybullet.getJointState(self.bot_model, self.left_wheel_joint, physicsClientId = self.pb_client)
+        r_pos, r_vel, r_react, r_torque = pybullet.getJointState(self.bot_model, self.right_wheel_joint, physicsClientId = self.pb_client)
         return l_torque, r_torque
 
     def get_wheel_velocity(self):
-        l_pos, l_vel, l_react, l_torque = self.pb_client.getJointState(self.bot_model, self.left_wheel_joint)
-        r_pos, r_vel, r_react, r_torque = self.pb_client.getJointState(self.bot_model, self.right_wheel_joint)
+        l_pos, l_vel, l_react, l_torque = pybullet.getJointState(self.bot_model, self.left_wheel_joint, physicsClientId = self.pb_client)
+        r_pos, r_vel, r_react, r_torque = pybullet.getJointState(self.bot_model, self.right_wheel_joint, physicsClientId = self.pb_client)
         return l_vel, r_vel
 
     def get_position(self):
-        position, orientation = self.pb_client.getBasePositionAndOrientation(self.bot_model)
+        position, orientation = pybullet.getBasePositionAndOrientation(self.bot_model, physicsClientId = self.pb_client)
         x, y, z = position
-        orientation = self.pb_client.getEulerFromQuaternion(orientation)
+        orientation = pybullet.getEulerFromQuaternion(orientation, physicsClientId = self.pb_client)
         pitch, roll, yaw = orientation
         return x, y, z, pitch, roll, yaw
 
@@ -62,15 +63,17 @@ class LineFollowerBot:
 
     def _set_wheel_velocity(self, left_velocity, right_velocity):
 
-        self.pb_client.setJointMotorControl2(self.bot_model,
+        pybullet.setJointMotorControl2(self.bot_model,
                                              jointIndex =   self.left_wheel_joint,
-                                             controlMode=   self.pb_client.VELOCITY_CONTROL,
-                                             targetVelocity      =   left_velocity)
+                                             controlMode=   pybullet.VELOCITY_CONTROL,
+                                             targetVelocity      =   left_velocity,
+                                             physicsClientId = self.pb_client)
 
-        self.pb_client.setJointMotorControl2(self.bot_model,
+        pybullet.setJointMotorControl2(self.bot_model,
                                              jointIndex =   self.right_wheel_joint,
-                                             controlMode=   self.pb_client.VELOCITY_CONTROL,
-                                             targetVelocity      =   right_velocity)
+                                             controlMode=   pybullet.VELOCITY_CONTROL,
+                                             targetVelocity      =   right_velocity,
+                                             physicsClientId = self.pb_client)
     
     def _to_quaternion(self, yaw, pitch, roll):
         cy = numpy.cos(yaw * 0.5)
@@ -92,19 +95,21 @@ class LineFollowerBot:
     def get_image(self, yaw, pitch, roll, distance, target_x, target_y, target_z, width = 512, height = 512, fov = 120):
 
         
-        vm = self.pb_client.computeViewMatrixFromYawPitchRoll([target_x, target_y, target_z], distance, yaw, pitch, roll, 2)
+        vm = pybullet.computeViewMatrixFromYawPitchRoll([target_x, target_y, target_z], distance, yaw, pitch, roll, 2, physicsClientId = self.pb_client)
 
 
-        pm = self.pb_client.computeProjectionMatrixFOV(fov=fov,
+        pm = pybullet.computeProjectionMatrixFOV(fov=fov,
                                                        aspect=width / height,
                                                        nearVal=0.0001,
-                                                       farVal=10.1) 
+                                                       farVal=10.1,
+                                                       physicsClientId = self.pb_client) 
 
-        w, h, rgb, deth, seg = self.pb_client.getCameraImage(width=width,
+        w, h, rgb, deth, seg = pybullet.getCameraImage(width=width,
                                                              height=height,
                                                              viewMatrix=vm,
                                                              projectionMatrix=pm,
-                                                             renderer=self.pb_client.ER_TINY_RENDERER)
+                                                             renderer=pybullet.ER_TINY_RENDERER,
+                                                             physicsClientId = self.pb_client)
 
         rgb = numpy.array(rgb)
         rgb = rgb[:, :, :3]

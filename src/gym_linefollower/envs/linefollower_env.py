@@ -6,14 +6,12 @@ import numpy
 import time
 import os
 
-from enum import Enum
-
+import pybullet
 
 from matplotlib import pyplot as plt
 from gym import spaces
 
 
-from gym_linefollower.envs.pybullet_client import PybulletClient
 from gym_linefollower.envs.track_load import TrackLoad
 from gym_linefollower.envs.linefollower_bot import LineFollowerBot
 from gym_linefollower.envs.observation import Observation
@@ -33,7 +31,7 @@ class LineFollowerEnv(gym.Env):
 
         self.advanced_mode = advanced_mode
        
-        self.pb_client = PybulletClient()
+        self.pb_client = pybullet.connect(pybullet.DIRECT)
 
         self.models_path = os.path.dirname(__file__)
         if len(self.models_path) <= 0:
@@ -46,8 +44,6 @@ class LineFollowerEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=1.0, shape=(width, height, frame_stacking), dtype=numpy.float)
  
         self.action_space = spaces.Discrete(16)
-
-        self.reset()
 
         self.actions = []
 
@@ -71,13 +67,14 @@ class LineFollowerEnv(gym.Env):
 
         self.time_step = 0
 
+        self.reset()
+
 
     def reset(self):
+        pybullet.resetSimulation(physicsClientId = self.pb_client)
 
-
-        self.pb_client.resetSimulation()
-        self.pb_client.setGravity(0, 0, -9.81)
-        self.pb_client.setTimeStep(self.dt)
+        pybullet.setGravity(0, 0, -9.81)
+        pybullet.setTimeStep(self.dt)
 
         if self.advanced_mode:
             track_idx = numpy.random.randint(32)
@@ -91,7 +88,7 @@ class LineFollowerEnv(gym.Env):
 
 
         for i in range(100):
-            self.pb_client.stepSimulation()
+            pybullet.stepSimulation(physicsClientId = self.pb_client)
 
 
 
@@ -134,7 +131,7 @@ class LineFollowerEnv(gym.Env):
     
         self.bot.set_throttle(self.left_power, self.right_power)
    
-        self.pb_client.stepSimulation()
+        pybullet.stepSimulation(physicsClientId = self.pb_client)
 
 
         closest_idx, closest_distance = self.line.get_closest(robot_x, robot_y)

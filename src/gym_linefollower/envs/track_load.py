@@ -1,6 +1,7 @@
 import numpy
 import matplotlib.pyplot as plt
 import json
+import pybullet
 
 class TrackLoad:
 
@@ -9,7 +10,7 @@ class TrackLoad:
         
         self.pi = 3.141592654
         self.points = self._load_json(file_name_prefix + ".json")
-        self.urfd_model = pb_client.loadURDF(file_name_prefix + ".urdf")
+        self.urfd_model = pybullet.loadURDF(file_name_prefix + ".urdf", physicsClientId = pb_client)
 
     def _load_json(self, file_name):
 
