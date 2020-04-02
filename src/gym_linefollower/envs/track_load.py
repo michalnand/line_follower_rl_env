@@ -4,15 +4,11 @@ import json
 import pybullet
 
 class TrackLoad:
-
-
     def __init__(self, pb_client, file_name_prefix):
         
         self.pi = 3.141592654
         self.points = self._load_json(file_name_prefix + ".json")
         self.urfd_model = pybullet.loadURDF(file_name_prefix + ".urdf", physicsClientId = pb_client)
-
-        print(self.points)
 
     def _load_json(self, file_name):
 
@@ -38,7 +34,7 @@ class TrackLoad:
         yaw = numpy.arctan2(dy, dx)
 
         point       = [self.points[idx][0], self.points[idx][1], 0.05]
-        orientation = [yaw + 0*self.pi, 0.0, 0.0]
+        orientation = [yaw, 0.0, 0.0]
         return [point, orientation]
 
     def get_start_random(self):
@@ -48,8 +44,8 @@ class TrackLoad:
     def get_closest(self, x, y):
         position = [x, y]
 
-        dif = self.points - position
-        distances = (numpy.sum((dif**2), axis = 1))**0.5
+        dif         = self.points - position
+        distances   = (numpy.sum((dif**2), axis = 1))**0.5
 
         closest_idx         = numpy.argmin(distances)
         closest_distance    = distances[closest_idx]

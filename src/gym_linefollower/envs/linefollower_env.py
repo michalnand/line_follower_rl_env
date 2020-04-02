@@ -32,7 +32,7 @@ class LineFollowerEnv(gym.Env):
         self.advanced_mode = advanced_mode
        
         self.pb_client = pybullet.connect(pybullet.DIRECT)
-        print("connection status = ", pybullet.isConnected(self.pb_client))
+        #print("connection status = ", pybullet.isConnected(self.pb_client))
 
         self.models_path = os.path.dirname(__file__)
         if len(self.models_path) <= 0:
@@ -74,8 +74,8 @@ class LineFollowerEnv(gym.Env):
     def reset(self):
         pybullet.resetSimulation(physicsClientId = self.pb_client)
 
-        pybullet.setGravity(0, 0, -9.81)
-        pybullet.setTimeStep(self.dt)
+        pybullet.setGravity(0, 0, -9.81, physicsClientId = self.pb_client)
+        pybullet.setTimeStep(self.dt, physicsClientId = self.pb_client)
 
         if self.advanced_mode:
             track_idx = numpy.random.randint(32)
