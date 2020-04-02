@@ -25,7 +25,7 @@ while True:
     action = env.action_space.sample()
     state, reward, done, _ = env.step(action)
 
-    env.render()
+    #env.render()
 
     steps+= 1
     score+= reward
