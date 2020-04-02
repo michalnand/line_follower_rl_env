@@ -90,8 +90,8 @@ class LineFollowerBot:
 
 
     def get_image(self, yaw, pitch, roll, distance, target_x, target_y, target_z, width = 512, height = 512, fov = 120):
-
         
+        '''
         vm = pybullet.computeViewMatrixFromYawPitchRoll([target_x, target_y, target_z], distance, yaw, pitch, roll, 2, physicsClientId = self.pb_client)
 
 
@@ -110,5 +110,6 @@ class LineFollowerBot:
 
         rgb = numpy.array(rgb)
         rgb = rgb[:, :, :3]
-
+        '''
+        rgb = numpy.zeros((256, 256, 3), dtype = numpy.uint8)
         return rgb
