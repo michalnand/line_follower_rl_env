@@ -21,11 +21,8 @@ class LineFollowerBot:
         self.left_wheel_joint   = 0
         self.right_wheel_joint  = 1
 
+        self.set_throttle(0.0, 0.0)
         
-        for i in range(100):
-            self.set_throttle(0.0, 0.0)
-            pybullet.stepSimulation(physicsClientId = self.pb_client)
-
 
     def set_throttle(self, left_power, right_power):
 

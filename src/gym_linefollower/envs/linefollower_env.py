@@ -31,6 +31,7 @@ class LineFollowerEnv(gym.Env):
 
         self.advanced_mode = advanced_mode
        
+        self.pb_client_a = pybullet.connect(pybullet.DIRECT)
         self.pb_client = pybullet.connect(pybullet.DIRECT)
 
         self.models_path = os.path.dirname(__file__)
@@ -118,6 +119,7 @@ class LineFollowerEnv(gym.Env):
         l_vel, r_vel = self.bot.get_wheel_velocity()
         l_tor, r_tor = self.bot.get_wheel_torque()
 
+        print("info = ", self.dt, self.pb_client)
         print("action   = ", action)
         print("position = ", robot_x, robot_y, robot_z, yaw)
         print("\n\n")
