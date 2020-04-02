@@ -31,8 +31,8 @@ class LineFollowerEnv(gym.Env):
 
         self.advanced_mode = advanced_mode
        
-        self.pb_client_a = pybullet.connect(pybullet.DIRECT)
         self.pb_client = pybullet.connect(pybullet.DIRECT)
+        print("connection status = ", pybullet.isConnected(self.pb_client))
 
         self.models_path = os.path.dirname(__file__)
         if len(self.models_path) <= 0:

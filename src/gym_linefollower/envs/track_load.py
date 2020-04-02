@@ -12,6 +12,8 @@ class TrackLoad:
         self.points = self._load_json(file_name_prefix + ".json")
         self.urfd_model = pybullet.loadURDF(file_name_prefix + ".urdf", physicsClientId = pb_client)
 
+        print(self.points)
+
     def _load_json(self, file_name):
 
         with open(file_name) as f:
