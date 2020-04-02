@@ -1,7 +1,7 @@
 import numpy
-import matplotlib.pyplot as plt
 import json
 import pybullet
+import matplotlib.pyplot as plt
 
 class TrackLoad:
     def __init__(self, pb_client, file_name_prefix):

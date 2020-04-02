@@ -9,13 +9,17 @@ import os
 import pybullet
 
 from matplotlib import pyplot as plt
-from gym import spaces
 
 
-from gym_linefollower.envs.track_load import TrackLoad
-from gym_linefollower.envs.linefollower_bot import LineFollowerBot
-from gym_linefollower.envs.observation import Observation
+#from gym_linefollower.envs.track_load import TrackLoad
+#from gym_linefollower.envs.linefollower_bot import LineFollowerBot
+#from gym_linefollower.envs.observation import Observation
 
+
+
+from track_load import TrackLoad
+from linefollower_bot import LineFollowerBot
+from observation import Observation
 
 
 
