@@ -120,7 +120,7 @@ class LineFollowerEnv(gym.Env):
 
     def step(self, action):
         left_power_target, right_power_target = self.actions[action]
-        self.step_continuous(left_power_target, right_power_target)
+        return self.step_continuous(left_power_target, right_power_target)
 
     def step_continuous(self, left_power_target, right_power_target):
         self.time_step+= 1
