@@ -68,7 +68,7 @@ while True:
 
 ### Prerequisites
 
-numpy, gym, pybullet, opencv-python
+numpy, gym, pybullet, opencv-python, shapely
 
 ### Installing
 

@@ -8,33 +8,40 @@ import os
 
 import cv2
 
+from shapely.geometry import Point
+from shapely.geometry.polygon import Polygon
+
 from gym_linefollower.envs.pybullet_client import PybulletClient
 from gym_linefollower.envs.track_load import TrackLoad
 from gym_linefollower.envs.linefollower_bot import LineFollowerBot
-from gym_linefollower.envs.observation import Observation
+from gym_linefollower.envs.observation import ObservationRaw, ObservationFrames
 
 
 
 class LineFollowerEnv(gym.Env):
 
-    def __init__(self, frame_stacking = 4, advanced_mode = False):
+    def __init__(self, frame_stacking = 4, state_type = "raw", line_mode = "basic"):
         gym.Env.__init__(self)
 
         self.dt = 1.0/200.0
         self.pi = 3.141592654
 
-        self.advanced_mode = advanced_mode
+        self.state_type = state_type
+        self.line_mode  = line_mode
        
 
         self.models_path = os.path.dirname(__file__)
         if len(self.models_path) <= 0:
             self.models_path = "."
       
-        width  = 96
-        height = 96
-
-        self.obs = Observation(width, height, frame_stacking)
-        self.observation_space = spaces.Box(low=0, high=1.0, shape=(frame_stacking, height, width), dtype=numpy.float)
+        if self.state_type == "raw":
+            self.obs = ObservationRaw(frame_stacking)
+            self.observation_space = spaces.Box(low=-1.0, high=1.0, shape=(frame_stacking, 3), dtype=numpy.float)
+        else:
+            width  = 96
+            height = 96     
+            self.obs = ObservationFrames(width, height, frame_stacking)
+            self.observation_space = spaces.Box(low=0, high=1.0, shape=(frame_stacking, height, width), dtype=numpy.float)
  
         self.action_space = spaces.Discrete(16)
 
@@ -70,7 +77,7 @@ class LineFollowerEnv(gym.Env):
         self.pb_client.setGravity(0, 0, -9.81, )
         self.pb_client.setTimeStep(self.dt, )
 
-        if self.advanced_mode:
+        if self.line_mode == "advanced":
             track_idx = numpy.random.randint(32)
             self.line = TrackLoad(self.pb_client, self.models_path + "/models_tracks/" + str(track_idx))
         else:
@@ -95,6 +102,8 @@ class LineFollowerEnv(gym.Env):
         self.reward      = 0.0
         self.done        = False
         self.info        = None
+
+        self.line_polygon = Polygon(self.line.points)
 
         self.visited_points = numpy.zeros(self.line.get_length(), dtype=bool)
 
@@ -209,33 +218,63 @@ class LineFollowerEnv(gym.Env):
         return self.bot.get_image(yaw*180.0/self.pi - 90, -15.0, 0.0, 0.015, robot_x, robot_y, robot_z + 0.1, width = width, height = height, fov=60)
 
     def _update_observation(self):
-        return self.obs.process(self._get_camera_view())
-    
+        if self.state_type == "raw":
 
-class LineFollowerEnvSimpleFS1(LineFollowerEnv):
+            line_position = self._get_line_position()
+
+            left_velocity, right_velocity = self.bot.get_wheel_velocity()
+            self.obs.process(line_position, left_velocity, right_velocity)
+        else:
+            frame = self._get_camera_view()
+            self.obs.process(frame)
+
+        return self.obs.get()
+
+    def _get_line_position(self, sensor_distance = 30.0):
+        x, y, _, _, _, yaw = self.bot.get_position()
+        _, distance  = self.line.get_closest(x, y)
+
+        if self.line_polygon.contains(Point(x, y)):
+            line_position = 1.0*distance
+        else:
+            line_position = -1.0*distance
+
+        return line_position
+
+
+class LineFollowerEnvRawBasic(LineFollowerEnv):
     def __init__(self):
-        LineFollowerEnv.__init__(self, 1, False)
+        LineFollowerEnv.__init__(self, 16, "raw", "basic")
 
-class LineFollowerEnvSimpleFS4(LineFollowerEnv):
+class LineFollowerEnvRawAdvanced(LineFollowerEnv):
     def __init__(self):
-        LineFollowerEnv.__init__(self, 4, False)
+        LineFollowerEnv.__init__(self, 16, "raw", "advanced")
 
-class LineFollowerEnvSimpleFS8(LineFollowerEnv):
+
+class LineFollowerEnvFrames1Basic(LineFollowerEnv):
     def __init__(self):
-        LineFollowerEnv.__init__(self, 8, False)
+        LineFollowerEnv.__init__(self, 1, "frames", "basic")
 
-
-class LineFollowerEnvAdvancedFS1(LineFollowerEnv):
+class LineFollowerEnvFrames4Basic(LineFollowerEnv):
     def __init__(self):
-        LineFollowerEnv.__init__(self, 1, True)
+        LineFollowerEnv.__init__(self, 4, "frames", "basic")
 
-class LineFollowerEnvAdvancedFS4(LineFollowerEnv):
+class LineFollowerEnvFrames8Basic(LineFollowerEnv):
     def __init__(self):
-        LineFollowerEnv.__init__(self, 4, True)
+        LineFollowerEnv.__init__(self, 8, "frames", "basic")
 
-class LineFollowerEnvAdvancedFS8(LineFollowerEnv):
+
+class LineFollowerEnvFrames1Advanced(LineFollowerEnv):
     def __init__(self):
-        LineFollowerEnv.__init__(self, 8, True)
+        LineFollowerEnv.__init__(self, 1, "frames", "advanced")
+
+class LineFollowerEnvFrames4Advanced(LineFollowerEnv):
+    def __init__(self):
+        LineFollowerEnv.__init__(self, 4, "frames", "advanced")
+
+class LineFollowerEnvFrames8Advanced(LineFollowerEnv):
+    def __init__(self):
+        LineFollowerEnv.__init__(self, 8, "frames", "advanced")
 
 
 

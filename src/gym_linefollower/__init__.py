@@ -1,37 +1,46 @@
 from gym.envs.registration import register
  
 register(
-    id='linefollowerSimple-v0', 
-    entry_point='gym_linefollower.envs:LineFollowerEnvSimpleFS1',
+    id='linefollowerRawBasic-v0', 
+    entry_point='gym_linefollower.envs:LineFollowerEnvRawBasic',
     max_episode_steps=16384, )
+
+register(
+    id='linefollowerRawAdvanced-v0', 
+    entry_point='gym_linefollower.envs:LineFollowerEnvRawAdvanced',
+    max_episode_steps=16384, )
+
 
 
 register(
-    id='linefollowerSimple-v1', 
-    entry_point='gym_linefollower.envs:LineFollowerEnvSimpleFS4',
+    id='linefollowerFrames1Basic-v0', 
+    entry_point='gym_linefollower.envs:LineFollowerEnvFrames1Basic',
     max_episode_steps=16384, )
+
+register(
+    id='linefollowerFrames4Basic-v0', 
+    entry_point='gym_linefollower.envs:LineFollowerEnvFrames4Basic',
+    max_episode_steps=16384, )
+
+register(
+    id='linefollowerFrames8Basic-v0', 
+    entry_point='gym_linefollower.envs:LineFollowerEnvFrames8Basic',
+    max_episode_steps=16384, )
+
+
 
 
 register(
-    id='linefollowerSimple-v2', 
-    entry_point='gym_linefollower.envs:LineFollowerEnvSimpleFS8',
+    id='linefollowerFrames1Advanced-v0', 
+    entry_point='gym_linefollower.envs:LineFollowerEnvFrames1Advanced',
     max_episode_steps=16384, )
-
 
 register(
-    id='linefollowerAdvanced-v0', 
-    entry_point='gym_linefollower.envs:LineFollowerEnvAdvancedFS1',
+    id='linefollowerFrames4Advanced-v0', 
+    entry_point='gym_linefollower.envs:LineFollowerEnvFrames4Advanced',
     max_episode_steps=16384, )
-
 
 register(
-    id='linefollowerAdvanced-v1', 
-    entry_point='gym_linefollower.envs:LineFollowerEnvAdvancedFS4',
+    id='linefollowerFrames8Advanced-v0', 
+    entry_point='gym_linefollower.envs:LineFollowerEnvFrames8Advanced',
     max_episode_steps=16384, )
-
-
-register(
-    id='linefollowerAdvanced-v2', 
-    entry_point='gym_linefollower.envs:LineFollowerEnvAdvancedFS8',
-    max_episode_steps=16384, )
-
