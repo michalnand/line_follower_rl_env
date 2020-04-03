@@ -13,6 +13,7 @@ env = gym.make('linefollowerRawBasic-v0')
 #env = gym.make('linefollowerFrames4Advanced-v0') #episodic random from 32 lines, state shape 4x96x96, 4 frames stacked
 #env = gym.make('linefollowerFrames8Advanced-v0') #episodic random from 32 lines, state shape 8x96x96, 8 frames stacked
 
+'''
 state = env.reset()
 print("state_shape = ", state.shape)
 
@@ -35,10 +36,9 @@ while True:
 
     print(state)
     print("steps = ", steps, " games = ", games, " score = ", score)
-
-
-
 '''
+
+
 state = env.reset()
 print("state_shape = ", state.shape)
 
@@ -49,29 +49,29 @@ score = 0
 while True:
 
     e0 = state[0][0]
-    e1 = state[0][1]
+    e1 = state[1][0]
     print(e0, e1)
 
-    if e0 < 0:
-        action = 1
-    else:
-        action = 0
+    base_speed = 0.2
 
-    state, reward, done, _ = env.step(action)
+    turn = 0.08*e0 + 1.8*(e0 - e1)
+
+
+    lp = base_speed + turn
+    rp = base_speed - turn
+
+    state, reward, done, _ = env.step_continuous(lp, rp)
+
+    print(e0, turn, lp, rp)
 
     env.render()
 
     steps+= 1
     score+= reward
-
-
   
 		
     if done:
         env.reset()
         games+= 1
 
-    print(state)
     print("steps = ", steps, " games = ", games, " score = ", score)
-
-    '''
