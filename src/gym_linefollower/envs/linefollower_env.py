@@ -35,23 +35,25 @@ class LineFollowerEnv(gym.Env):
             self.models_path = "."
       
         if self.state_type == "raw":
-            self.obs = ObservationRaw(frame_stacking)
-            self.observation_space = spaces.Box(low=-1.0, high=1.0, shape=(frame_stacking, 3), dtype=numpy.float)
+            self.obs = ObservationRaw(frame_stacking)  
+            self.observation_space = spaces.Box(low=-1.0, high=1.0, shape=(3, frame_stacking), dtype=numpy.float)
         else:
             width  = 96
             height = 96     
             self.obs = ObservationFrames(width, height, frame_stacking)
             self.observation_space = spaces.Box(low=0, high=1.0, shape=(frame_stacking, height, width), dtype=numpy.float)
  
-        self.action_space = spaces.Discrete(16)
+        self.action_space = spaces.Discrete(4)
 
         self.actions = []
         
         self.actions.append([0.0, 0.0])
+        self.actions.append([0.5, 0.5])
 
-        self.actions.append([0.01, 0.0])
-        self.actions.append([0.0, 0.01])
+        self.actions.append([0.3, 0.0])
+        self.actions.append([0.0, 0.3])
 
+        '''
         self.actions.append([0.05, 0.0])
         self.actions.append([0.0, 0.05])
 
@@ -61,18 +63,18 @@ class LineFollowerEnv(gym.Env):
         self.actions.append([0.2, 0.0])
         self.actions.append([0.0, 0.2])
 
+        self.actions.append([0.3, 0.0])
+        self.actions.append([0.0, 0.3])
+
         self.actions.append([0.2, 0.1])
         self.actions.append([0.1, 0.2])
 
         self.actions.append([0.3, 0.1])
         self.actions.append([0.1, 0.3])
 
-        self.actions.append([0.3, 0.2])
-        self.actions.append([0.2, 0.3])
-
-        self.actions.append([0.5, 0.5])
-
-        self.time_step = 0
+        self.actions.append([0.5, 0.4])
+        self.actions.append([0.4, 0.5])
+        '''
 
         self.pb_client = PybulletClient()
         self.reset()
@@ -98,12 +100,7 @@ class LineFollowerEnv(gym.Env):
         for i in range(100):
             self.pb_client.stepSimulation()
 
-
-
-        self.left_power  = 0.0
-        self.right_power = 0.0
-
-        self.render_steps = 0
+        self.steps = 0
 
         self.observation = None
         self.reward      = 0.0
@@ -123,20 +120,15 @@ class LineFollowerEnv(gym.Env):
         return self.step_continuous(left_power_target, right_power_target)
 
     def step_continuous(self, left_power_target, right_power_target):
-        self.time_step+= 1
+        self.steps+= 1
 
         robot_x, robot_y, robot_z, pitch, roll, yaw = self.bot.get_position()
 
         l_pos, r_pos = self.bot.get_wheel_position()
         l_vel, r_vel = self.bot.get_wheel_velocity()
         l_tor, r_tor = self.bot.get_wheel_torque()
-    
-        k = 1.0
 
-        self.left_power   = (1.0 - k)*self.left_power + k*numpy.clip(left_power_target, -1.0, 1.0)
-        self.right_power  = (1.0 - k)*self.right_power + k*numpy.clip(right_power_target, -1.0, 1.0)
-    
-        self.bot.set_throttle(self.left_power, self.right_power)
+        self.bot.set_throttle(left_power_target, right_power_target)
    
         self.pb_client.stepSimulation()
 
@@ -147,23 +139,25 @@ class LineFollowerEnv(gym.Env):
         self.reward = 0.0
 
 
-        #negative reward for not line following
-        self.reward+= -1.0*numpy.clip(closest_distance*5.0, 0.0, 1.0)
-
-        #positive reward for moving to next field
-        if self.visited_points[closest_idx] == False:
-            self.reward+= 1.0 
-            self.visited_points[closest_idx] = True
-
-        visited_count = numpy.sum(self.visited_points)
-
-        if visited_count >= 0.9*self.line.get_length():
-            self.done   = True
-            self.reward = 1.0
-
+        #bot is too far away from line
         if closest_distance > 0.15:
             self.done   = True
             self.reward = -1.0
+        #all line fields visited
+        elif  numpy.sum(self.visited_points) >= 0.9*self.line.get_length():
+            self.done   = True
+            self.reward = 1.0
+        #too many time steps
+        elif self.steps > 4096:
+            self.done = True
+        else:
+            #small negative reward for not line following
+            self.reward = -1.0*numpy.clip(closest_distance, 0.0, 1.0)
+
+            #positive reward for moving to next field
+            if self.visited_points[closest_idx] == False:
+                self.reward+= 1.0 
+                self.visited_points[closest_idx] = True
 
         self.observation = self._update_observation()
         
@@ -172,7 +166,7 @@ class LineFollowerEnv(gym.Env):
 
 
     def render(self, mode = None):
-        if self.render_steps%4 == 0:
+        if self.steps%4 == 0:
             robot_x, robot_y, robot_z, pitch, roll, yaw = self.bot.get_position()
 
             width  = 256
@@ -213,8 +207,6 @@ class LineFollowerEnv(gym.Env):
             image = numpy.array(image, dtype=numpy.uint8)
             self._draw_fig(image)
         
-        self.render_steps+= 1
-
     def _draw_fig(self, image):
         rgb = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
 
@@ -228,7 +220,7 @@ class LineFollowerEnv(gym.Env):
     def _update_observation(self):
         if self.state_type == "raw":
 
-            line_position = self._get_line_position(0.05)
+            line_position = self._get_line_position(0.04)
 
             left_velocity, right_velocity = self.bot.get_wheel_velocity()
             self.obs.process(line_position, left_velocity, right_velocity)
@@ -246,7 +238,7 @@ class LineFollowerEnv(gym.Env):
 
         _, distance  = self.line.get_closest(x_, y_)
 
-        if self.line_polygon.contains(Point(x, y)):
+        if self.line_polygon.contains(Point(x_, y_)):
             line_position = 1.0*distance
         else:
             line_position = -1.0*distance
